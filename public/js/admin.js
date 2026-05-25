@@ -1,82 +1,127 @@
-let telaOriginal = "";
-let funcionarios = [
-  {
-    nome: "Carlos Henrique",
-    cpf: "123.456.789-00",
-    cargo: "Técnico",
-    senha: "carlos123",
-  },
-  {
-    nome: "Mariana Souza",
-    cpf: "987.654.321-11",
-    cargo: "Supervisora",
-    senha: "mariana123",
-  },
-  {
-    nome: "Felipe Rocha",
-    cpf: "456.123.789-55",
-    cargo: "Digitalizador",
-    senha: "felipe123",
-  },
-  {
-    nome: "Juliana Mendes",
-    cpf: "741.852.963-77",
-    cargo: "Técnica",
-    senha: "juliana123",
-  },
-  {
-    nome: "Ricardo Lima",
-    cpf: "852.951.357-22",
-    cargo: "Supervisor",
-    senha: "ricardo123",
-  },
-];
-function abrirAdmin() {
-  const senha = prompt("Digite a senha de administrador:");
-  if (senha !== "12345") {
-    alert("Senha errada, acesso negado.");
+async function checarSessao() {
+  const tipo = sessionStorage.getItem("tipoUsuario");
+  
+  if (tipo !== "administrador") {
+    alert("Acesso bloqueado. Apenas administradores podem acessar esta página.");
+    window.location.href = "index.html";
+    return false;
+  }
+  return true;
+}
+
+window.onload = async () => {
+  const autorizado = await checarSessao();
+  if (autorizado) {
+    listarFuncionarios();
+  }
+};
+
+async function logoutAdmin() {
+  sessionStorage.clear();
+  window.location.href = "index.html";
+}
+
+async function cadastrarFuncionario() {
+  const nome_func = document.getElementById("nomeFuncionario").value.trim();
+  const login_func = document.getElementById("loginFuncionario").value.trim();
+  const tipo_func = document.getElementById("tipoFuncionario").value.trim();
+  const senha_func = document.getElementById("senhaFuncionario").value;
+  if (nome_func === "" || login_func === "" || tipo_func === "" || senha_func === "") {
+    alert("Preencha nome, email, tipo e senha.");
     return;
   }
-  const mainCard = document.getElementById("mainCard");
-  telaOriginal = mainCard.innerHTML;
-  mainCard.innerHTML = ` <div style=" display:flex; justify-content:center; margin-bottom:40px; "> <img src="../assets/img/logo-sgb-form.png" style=" width:20%; object-fit:contain; " > </div> <h1>CADASTRO DE FUNCIONÁRIOS</h1> <form> <div class="input-group"> <label>Nome:</label> <input type="text" id="nomeFuncionario" placeholder="Digite o nome" > </div> <div class="input-group"> <label>CPF:</label> <input type="text" id="cpfFuncionario" placeholder="Digite o CPF" > </div> <div class="input-group"> <label>Função:</label> <input type="text" id="cargoFuncionario" placeholder="Digite a função do funcionário" > </div> <div class="input-group"> <label>Senha do funcionário:</label> <input type="text" id="senhaFuncionario" placeholder="Digite a senha do funcionário" > </div> <div class="input-group"> <label>Ano de entrada:</label> <input type="number" placeholder="Digite o ano" > </div> <div class="input-group"> <label>Email corporativo:</label> <input type="email" placeholder="Digite o email" > </div> <button type="button" class="login-btn" onclick="cadastrarFuncionario()" > CADASTRAR </button> </form> <br><br> <button class="login-btn" onclick="listarFuncionarios()" > LISTAR FUNCIONÁRIOS </button> <div id="listaFuncionarios"></div> `;
-  const adminButton = document.getElementById("adminButton");
-  adminButton.innerHTML = "← VOLTAR";
-  adminButton.onclick = voltarTelaLogin;
+
+  try {
+    const { error } = await supabaseClient
+      .from('funcionarios')
+      .insert([{ nome_func, login_func, tipo_func, senha_func }]);
+
+    if (error) {
+      console.error("Erro ao cadastrar:", error);
+      alert("Erro ao cadastrar: " + error.message);
+      return;
+    }
+
+    alert("Funcionário cadastrado com sucesso!");
+    // Limpa o formulário
+    document.getElementById("nomeFuncionario").value = "";
+    document.getElementById("loginFuncionario").value = "";
+    document.getElementById("tipoFuncionario").value = "";
+    document.getElementById("senhaFuncionario").value = "";
+
+    listarFuncionarios();
+  } catch (err) {
+    console.error("Erro inesperado:", err);
+    alert("Erro inesperado ao cadastrar.");
+  }
 }
-function voltarTelaLogin() {
-  const mainCard = document.getElementById("mainCard");
-  mainCard.innerHTML = telaOriginal;
-  const adminButton = document.getElementById("adminButton");
-  adminButton.innerHTML = "ADMIN";
-  adminButton.onclick = abrirAdmin;
+
+async function listarFuncionarios() {
+  const listaDiv = document.getElementById("listaFuncionarios");
+  listaDiv.innerHTML = "<p style='text-align:center;'>Carregando funcionários...</p>";
+
+  try {
+    const { data: lista, error } = await supabaseClient
+      .from('funcionarios')
+      .select('*')
+      .order('nome_func', { ascending: true });
+
+    if (error) {
+      console.error("Erro ao buscar funcionários:", error);
+      listaDiv.innerHTML = "<p style='text-align:center; color:red;'>Erro ao carregar: " + error.message + "</p>";
+      return;
+    }
+
+    let html = "";
+
+    if (lista.length === 0) {
+      html = "<p style='text-align:center; grid-column: 1 / -1;'>Nenhum funcionário cadastrado no banco de dados.</p>";
+    } else {
+      lista.forEach((funcionario) => {
+        let btnDeletar = "";
+        
+        // Só exibe a lixeira se NÃO for um administrador
+        if (funcionario.tipo_func !== "administrador") {
+          btnDeletar = `<button onclick="deletarFuncionario('${funcionario.id_func}', '${funcionario.tipo_func}')" style=" position:absolute; top:15px; right:15px; border:none; background:#d62828; color:white; width:35px; height:35px; border-radius:8px; cursor:pointer; font-size:18px; font-weight:bold; transition: background 0.2s; " onmouseover="this.style.background='#b31b1b'" onmouseout="this.style.background='#d62828'" title="Excluir funcionário"> 🗑 </button>`;
+        }
+
+        html += ` <div style=" background:#f3f6fa; padding:20px; border-radius:12px; font-size:16px; line-height:1.6; position:relative; box-shadow: 0 4px 6px rgba(0,0,0,0.05); border: 1px solid #e2e8f0; "> ${btnDeletar} <strong>Nome:</strong> ${funcionario.nome_func}<br> <strong>Email:</strong> ${funcionario.login_func}<br> <strong>Tipo:</strong> ${funcionario.tipo_func}<br> <strong>Senha:</strong> ${funcionario.senha_func} </div> `;
+      });
+    }
+
+    listaDiv.innerHTML = html;
+  } catch (err) {
+    console.error("Erro inesperado:", err);
+    listaDiv.innerHTML = "<p style='text-align:center; color:red;'>Erro inesperado.</p>";
+  }
 }
-function cadastrarFuncionario() {
-  const nome = document.getElementById("nomeFuncionario").value;
-  const cpf = document.getElementById("cpfFuncionario").value;
-  const cargo = document.getElementById("cargoFuncionario").value;
-  const senha = document.getElementById("senhaFuncionario").value;
-  if (nome === "" || cpf === "" || cargo === "" || senha === "") {
-    alert("Preencha nome, CPF, função e senha.");
+
+async function deletarFuncionario(id_func, tipo_func) {
+  if (tipo_func === "administrador") {
+    alert("Operação negada: Não é permitido deletar um perfil de administrador do sistema.");
     return;
   }
-  funcionarios.push({ nome: nome, cpf: cpf, cargo: cargo, senha: senha });
-  alert("Funcionário cadastrado com sucesso.");
-  listarFuncionarios();
-}
-function listarFuncionarios() {
-  let html = ` <div style="margin-top:30px;"> <h1 style=" font-size:28px; margin-bottom:25px; color:#0b3d5c; text-align:center; "> FUNCIONÁRIOS </h1> `;
-  funcionarios.forEach((funcionario, index) => {
-    html += ` <div style=" background:#f3f6fa; padding:18px; border-radius:12px; margin-bottom:14px; font-size:16px; line-height:1.5; position:relative; "> <button onclick="deletarFuncionario(${index})" style=" position:absolute; top:15px; right:15px; border:none; background:#d62828; color:white; width:35px; height:35px; border-radius:8px; cursor:pointer; font-size:18px; font-weight:bold; " > 🗑 </button> <strong>Nome:</strong> ${funcionario.nome}<br> <strong>CPF:</strong> ${funcionario.cpf}<br> <strong>Função:</strong> ${funcionario.cargo}<br> <strong>Senha:</strong> ${funcionario.senha} </div> `;
-  });
-  html += `</div>`;
-  document.getElementById("listaFuncionarios").innerHTML = html;
-}
-function deletarFuncionario(index) {
+
   const confirmar = confirm("Tem certeza que deseja deletar este funcionário?");
   if (confirmar) {
-    funcionarios.splice(index, 1);
-    listarFuncionarios();
-    alert("Funcionário deletado com sucesso.");
+    try {
+      const { error } = await supabaseClient
+        .from('funcionarios')
+        .delete()
+        .eq('id_func', id_func);
+
+      if (error) {
+        console.error("Erro ao deletar:", error);
+        alert("Erro ao deletar: " + error.message);
+        return;
+      }
+
+      alert("Funcionário deletado com sucesso.");
+      listarFuncionarios();
+    } catch (err) {
+      console.error("Erro inesperado:", err);
+      alert("Erro inesperado ao deletar.");
+    }
   }
 }
+

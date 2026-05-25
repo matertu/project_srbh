@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Recuperar Senha - SGB</title>
+  <link rel="stylesheet" href="styles/styles.css?v=2" />
+  <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+</head>
+<body>
+  <header>
+    <img src="assets/img/logo-sgb-cabecalho.png" alt="Logo da Empresa" class="logo-topo" />
+  </header>
+  
+  <main>
+    <button class="admin-btn" onclick="window.location.href='index.html'">
+      ← VOLTAR AO LOGIN
+    </button>
+    <div class="login-card">
+      <img class="form-img" src="assets/img/logo-sgb-form.png" alt="" />
+      <h1>Recuperação de Senha</h1>
+      <p style="text-align: center; margin-bottom: 25px; font-size: 15px; color: #555;">
+        Digite seu e-mail cadastrado.
+      </p>
+      
+      <form>
+        <div class="input-group">
+          <label for="emailRecuperacao"> Email Cadastrado: </label>
+          <input type="email" id="emailRecuperacao" placeholder="Digite seu email" />
+        </div>
+        
+        <button type="button" class="login-btn" onclick="executarRecuperacao()" style="margin-top: 10px;">ENVIAR SENHA</button>
+      </form>
+    </div>
+  </main>
+
+  <footer>
+    <img src="assets/img/logo-sgb-rodape.png" alt="Logo da Empresa" class="logo-footer" />
+  </footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="js/supabase-config.js"></script>
+  <script src="js/login.js"></script>
+</body>
+</html>

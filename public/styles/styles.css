@@ -25,7 +25,7 @@ header {
 }
 
 .logo-topo {
-  width: 17.5%;
+  width: clamp(150px, 18vw, 300px);
   object-fit: contain;
 }
 
@@ -44,23 +44,17 @@ main {
 
 .admin-btn {
   position: absolute;
-  top: 25px;
-  left: 25px;
-
-  padding: 14px 28px;
-
-  font-size: 18px;
+  top: clamp(15px, 3vw, 25px);
+  left: clamp(15px, 3vw, 25px);
+  padding: clamp(10px, 2vw, 14px) clamp(18px, 3vw, 28px);
+  font-size: clamp(14px, 2vw, 18px);
   font-weight: bold;
-
   border: none;
   border-radius: 10px;
-
   background: #0b3d5c;
   color: white;
-
   cursor: pointer;
   transition: 0.3s;
-
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
@@ -74,13 +68,9 @@ main {
 .login-card {
   width: 100%;
   max-width: 600px;
-
   background: white;
-
-  padding: 50px;
-
+  padding: clamp(30px, 5vw, 50px);
   border-radius: 20px;
-
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
 }
 
@@ -91,12 +81,9 @@ main {
 
 .login-card h1 {
   text-align: center;
-
   color: #0b3d5c;
-
-  font-size: 28px;
-
-  margin-bottom: 40px;
+  font-size: clamp(24px, 4vw, 28px);
+  margin-bottom: clamp(20px, 4vw, 40px);
 }
 
 /* INPUTS */
@@ -220,23 +207,52 @@ footer {
 }
 
 .logo-footer {
-  width: 15%;
+  width: clamp(120px, 15vw, 250px);
   object-fit: contain;
 }
 
-/* RESPONSIVO */
+/* RESPONSIVIDADE NATIVA E FLUIDA (SEM MEDIA QUERIES) */
 
-@media (max-width: 700px) {
-  .login-card {
-    padding: 30px;
-  }
+/* ----------------------------------------------------- */
+/* ESTILOS DO PAINEL DE ADMINISTRAÇÃO                    */
+/* ----------------------------------------------------- */
 
-  .login-card h1 {
-    font-size: 28px;
-  }
+.admin-container {
+  display: flex; flex-direction: column; align-items: center; padding: clamp(10px, 2vw, 20px) 10px; width: 100%; box-sizing: border-box;
+}
 
-  .admin-btn {
-    font-size: 14px;
-    padding: 10px 18px;
-  }
+.admin-header-buttons {
+  display: flex; justify-content: space-between; flex-wrap: wrap; max-width: 1200px; width: 100%; margin: 0 auto clamp(10px, 3vw, 20px) auto; gap: 10px;
+}
+.admin-header-buttons button {
+  flex: 1 1 200px; /* Expande ou quebra a linha automaticamente se faltar espaço */
+  position: static; /* Garante que os botões do cabeçalho admin não fiquem flutuando */
+  margin: 0;
+}
+
+.admin-card {
+  background: white; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); 
+  max-width: 1200px; width: 100%; margin: 0 auto clamp(20px, 4vw, 40px) auto; padding: clamp(20px, 4vw, 40px); box-sizing: border-box;
+}
+
+.form-title-wrapper {
+  display: flex; justify-content: center; align-items: center; margin-bottom: clamp(20px, 4vw, 40px); gap: clamp(10px, 2vw, 20px); flex-wrap: wrap; text-align: center;
+}
+
+.form-title-wrapper img { height: clamp(40px, 6vw, 60px); object-fit: contain; }
+.form-title-wrapper h1 { margin: 0; font-size: clamp(22px, 4vw, 32px); color: #0b3d5c; }
+
+.list-header {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: clamp(15px, 3vw, 30px); border-bottom: 2px solid #eee; padding-bottom: clamp(10px, 2vw, 20px); flex-wrap: wrap; gap: 15px;
+}
+
+.list-header h1 { margin: 0; font-size: clamp(20px, 4vw, 28px); color: #0b3d5c; flex: 1 1 250px; text-align: center; }
+.list-header button { flex: 1 1 200px; position: static; margin: 0; }
+
+.grid-form {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: clamp(15px, 2vw, 20px);
+}
+
+.grid-list {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr)); gap: clamp(15px, 2vw, 20px);
 }

@@ -1,0 +1,414 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Visualizador de Boletim</title>
+    <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
+
+      body {
+        min-height: 100vh;
+        background: #eef2f7;
+        display: flex;
+        flex-direction: column;
+      }
+
+      header {
+        width: 100%;
+        background: #0b3d5c;
+        border-bottom: 4px solid #1b6ca8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px 0;
+      }
+
+      .logo-topo { width: 17.5%; object-fit: contain; }
+
+      main {
+        flex: 1;
+        width: 100%;
+        max-width: 1400px;
+        margin: auto;
+        padding: 40px 30px 60px;
+      }
+
+      /* TOPO DA PÁGINA */
+      .page-header {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .btn-voltar {
+        padding: 12px 24px;
+        border: 2px solid #0b3d5c;
+        border-radius: 10px;
+        background: transparent;
+        color: #0b3d5c;
+        font-size: 15px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.2s;
+        text-decoration: none;
+        display: inline-block;
+      }
+      .btn-voltar:hover { background: #0b3d5c; color: white; }
+
+      h1.page-title {
+        font-size: 30px;
+        color: #0b3d5c;
+        flex: 1;
+      }
+
+      .badge-status {
+        padding: 8px 18px;
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: bold;
+      }
+      .status-r        { background: #dbeafe; color: #1e40af; }
+      .status-enviado  { background: #dff3e3; color: #207a36; }
+      .status-pendente { background: #fff3cd; color: #856404; }
+      .status-arquivado{ background: #e2e8f0; color: #475569; }
+
+      /* BANNER ERRO / LOADING */
+      .info-banner {
+        background: #eef2f7;
+        border-left: 6px solid #1b6ca8;
+        border-radius: 10px;
+        padding: 20px 24px;
+        color: #0b3d5c;
+        font-size: 16px;
+        margin-bottom: 24px;
+        display: none;
+      }
+      .info-banner.erro { border-color: #a32d2d; background: #fef2f2; color: #a32d2d; }
+
+      /* CARD PRINCIPAL */
+      .form-card {
+        background: white;
+        border-radius: 18px;
+        padding: 35px 30px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+      }
+
+      /* METADADOS */
+      .meta-row {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
+      }
+
+      .meta-group {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        flex: 1;
+        min-width: 160px;
+      }
+
+      .meta-group label {
+        font-size: 13px;
+        font-weight: bold;
+        color: #0b3d5c;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+      }
+
+      /* Campo somente leitura — parece input mas não é editável */
+      .campo-readonly {
+        padding: 10px 14px;
+        border: 2px solid #e2e8f0;
+        border-radius: 8px;
+        font-size: 15px;
+        color: #333;
+        background: #f8fafc;
+        min-height: 42px;
+      }
+
+      /* TABELA */
+      .table-wrapper { overflow-x: auto; }
+
+      table.dados-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      table.dados-table thead th {
+        background: #0b3d5c;
+        color: white;
+        padding: 12px 10px;
+        text-align: center;
+        font-size: 13px;
+        letter-spacing: 0.5px;
+        position: sticky;
+        top: 0;
+        z-index: 2;
+      }
+
+      table.dados-table thead th:first-child { border-radius: 10px 0 0 0; width: 70px; }
+      table.dados-table thead th:last-child  { border-radius: 0 10px 0 0; }
+
+      table.dados-table tbody tr { border-bottom: 1px solid #e8edf2; }
+      table.dados-table tbody tr:nth-child(even) { background: #f9fbfc; }
+
+      .dia-label {
+        text-align: center;
+        font-weight: bold;
+        color: #0b3d5c;
+        font-size: 14px;
+        padding: 8px 12px;
+        background: #eef2f7;
+        border-right: 2px solid #dde4ea;
+      }
+
+      table.dados-table tbody td {
+        padding: 6px 8px;
+        text-align: center;
+      }
+
+      /* Célula de valor — sem borda de input, visual limpo */
+      .cell-valor {
+        display: inline-block;
+        width: 100%;
+        min-width: 80px;
+        padding: 8px 6px;
+        font-size: 14px;
+        text-align: center;
+        color: #1e293b;
+        background: #f8fafc;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 7px;
+      }
+
+      .cell-valor.zero { color: #94a3b8; }
+
+      /* Skeleton */
+      .skeleton {
+        background: linear-gradient(90deg, #e8edf2 25%, #f5f8fb 50%, #e8edf2 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 8px;
+        height: 16px;
+        margin-bottom: 8px;
+      }
+      @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+      footer {
+        width: 100%;
+        background: #0b3d5c;
+        border-top: 4px solid #1b6ca8;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 16px;
+      }
+      .logo-footer { width: 15%; object-fit: contain; }
+
+      @media (max-width: 700px) {
+        h1.page-title { font-size: 22px; }
+        .logo-topo, .logo-footer { width: 45%; }
+      }
+    </style>
+  </head>
+  <body>
+
+    <header>
+      <img src="assets/img/logo-sgb-cabecalho.png" class="logo-topo" alt="SGB" />
+    </header>
+
+    <main>
+
+      <!-- TOPO -->
+      <div class="page-header">
+        <a href="dashboard.html" class="btn-voltar">← VOLTAR</a>
+        <h1 class="page-title" id="pageTitle">Carregando boletim...</h1>
+        <span class="badge-status" id="badgeStatus"></span>
+      </div>
+
+      <!-- BANNER INFO / ERRO -->
+      <div class="info-banner" id="infoBanner"></div>
+
+      <!-- CARD METADADOS -->
+      <div class="form-card" id="cardMetadados" style="display:none;">
+        <div class="meta-row">
+          <div class="meta-group">
+            <label>ID do Boletim</label>
+            <div class="campo-readonly" id="vIdBoletim"></div>
+          </div>
+          <div class="meta-group">
+            <label>Referência (Mês/Ano)</label>
+            <div class="campo-readonly" id="vRefData"></div>
+          </div>
+          <div class="meta-group">
+            <label>Data de Recebimento</label>
+            <div class="campo-readonly" id="vDataReceb"></div>
+          </div>
+          <div class="meta-group">
+            <label>ID da Estação</label>
+            <div class="campo-readonly" id="vEstacao"></div>
+          </div>
+          <div class="meta-group">
+            <label>ID do Funcionário</label>
+            <div class="campo-readonly" id="vFunc"></div>
+          </div>
+          <div class="meta-group">
+            <label>Ficheiro</label>
+            <div class="campo-readonly" id="vFicheiro"></div>
+          </div>
+        </div>
+
+        <!-- TABELA 31x4 -->
+        <div class="table-wrapper">
+          <table class="dados-table">
+            <thead>
+              <tr>
+                <th>Dia</th>
+                <th>X1</th>
+                <th>X1.1</th>
+                <th>X2</th>
+                <th>X2.2</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- SKELETON enquanto carrega -->
+      <div class="form-card" id="cardSkeleton">
+        <div class="meta-row">
+          <div class="meta-group"><div class="skeleton"></div><div class="skeleton" style="height:42px;"></div></div>
+          <div class="meta-group"><div class="skeleton"></div><div class="skeleton" style="height:42px;"></div></div>
+          <div class="meta-group"><div class="skeleton"></div><div class="skeleton" style="height:42px;"></div></div>
+          <div class="meta-group"><div class="skeleton"></div><div class="skeleton" style="height:42px;"></div></div>
+        </div>
+        <div class="skeleton" style="height:300px; border-radius:12px;"></div>
+      </div>
+
+    </main>
+
+    <footer>
+      <img src="assets/img/logo-sgb-rodape.png" class="logo-footer" alt="SGB" />
+    </footer>
+
+    <script src="js/boletimAPI.js"></script>
+    <script>
+      // ── Mapa de status ────────────────────────────────────────
+      const STATUS_MAP = {
+        R: { label: 'RECEBIDO',   classe: 'status-r'         },
+        E: { label: 'ENVIADO',    classe: 'status-enviado'   },
+        P: { label: 'PENDENTE',   classe: 'status-pendente'  },
+        A: { label: 'ARQUIVADO',  classe: 'status-arquivado' },
+      };
+
+      // ── Formata "YYYY-MM-DD" → "MM/YYYY" ─────────────────────
+      function formatarData(dataStr) {
+        if (!dataStr) return '—';
+        const [ano, mes] = dataStr.split('-');
+        return `${mes}/${ano}`;
+      }
+
+      // ── Monta a tabela com os valores (somente leitura) ───────
+      function montarTabela(dadosBole) {
+        const corpo = document.getElementById('corpoTabela');
+        corpo.innerHTML = '';
+
+        // dadosBole pode ser array 31x4 ou null (banco não tem essa coluna ainda)
+        for (let dia = 1; dia <= 31; dia++) {
+          const tr = document.createElement('tr');
+
+          const tdLabel = document.createElement('td');
+          tdLabel.className = 'dia-label';
+          tdLabel.textContent = dia;
+          tr.appendChild(tdLabel);
+
+          for (let col = 0; col < 4; col++) {
+            const td   = document.createElement('td');
+            const val  = dadosBole ? (dadosBole[dia - 1]?.[col] ?? 0) : 0;
+            const span = document.createElement('span');
+            span.className = 'cell-valor' + (val === 0 ? ' zero' : '');
+            span.textContent = val;
+            td.appendChild(span);
+            tr.appendChild(td);
+          }
+
+          corpo.appendChild(tr);
+        }
+      }
+
+      // ── Preenche os metadados na tela ─────────────────────────
+      function preencherMetadados(boletim) {
+        const s = STATUS_MAP[boletim.status_boletim] ?? { label: boletim.status_boletim, classe: 'status-r' };
+
+        document.getElementById('pageTitle').textContent =
+          `Boletim #${boletim.id_boletim} — ${formatarData(boletim.ano_mes_boletim)}`;
+
+        const badge = document.getElementById('badgeStatus');
+        badge.textContent  = s.label;
+        badge.className    = `badge-status ${s.classe}`;
+
+        document.getElementById('vIdBoletim').textContent  = boletim.id_boletim;
+        document.getElementById('vRefData').textContent    = formatarData(boletim.ano_mes_boletim);
+        document.getElementById('vDataReceb').textContent  = formatarData(boletim.data_recebimento_boletim);
+        document.getElementById('vEstacao').textContent    = boletim.id_estacao;
+        document.getElementById('vFunc').textContent       = boletim.id_func ?? '—';
+        document.getElementById('vFicheiro').textContent   = boletim.ficheiro_boletim ?? '—';
+      }
+
+      // ── Mostra banner de erro ─────────────────────────────────
+      function mostrarErro(msg) {
+        const b = document.getElementById('infoBanner');
+        b.textContent = '⚠ ' + msg;
+        b.className   = 'info-banner erro';
+        b.style.display = 'block';
+        document.getElementById('pageTitle').textContent = 'Erro ao carregar boletim';
+      }
+
+      // ── Init ──────────────────────────────────────────────────
+      window.onload = async function () {
+        // Pega o ID da URL: visualizador.html?id=5
+        const params = new URLSearchParams(window.location.search);
+        const id     = parseInt(params.get('id'));
+
+        if (!id) {
+          mostrarErro('Nenhum ID de boletim informado na URL.');
+          document.getElementById('cardSkeleton').style.display = 'none';
+          return;
+        }
+
+        try {
+          const boletim = await buscarBoletimPorId(id);
+
+          if (!boletim) {
+            mostrarErro(`Boletim #${id} não encontrado no banco de dados.`);
+            document.getElementById('cardSkeleton').style.display = 'none';
+            return;
+          }
+
+          preencherMetadados(boletim);
+
+          // dadosBole: o banco não tem essa coluna ainda; quando tiver,
+          // passe boletim.dados_bole (ajuste o nome conforme seu schema).
+          montarTabela(boletim.dados_bole ?? null);
+
+          document.getElementById('cardSkeleton').style.display = 'none';
+          document.getElementById('cardMetadados').style.display = 'block';
+
+        } catch (erro) {
+          console.error(erro);
+          mostrarErro('Falha ao buscar boletim: ' + erro.message);
+          document.getElementById('cardSkeleton').style.display = 'none';
+        }
+      };
+    </script>
+  </body>
+</html>

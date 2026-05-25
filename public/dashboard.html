@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Controle de Boletins</title>
+    <link rel="stylesheet" href="styles/dashboard.css" />
+    <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+  </head>
+  <body>
+    <!-- HEADER -->
+    <header>
+      <img src="assets/img/logo-sgb-cabecalho.png" class="logo-topo" />
+    </header>
+    <!-- MAIN -->
+    <main>
+      <h1 class="dashboard-title">Serviço Geológico do Brasil - CPRM</h1>
+      <!-- STATUS -->
+      <div class="status-container">
+        <div class="status-card">
+          <h2>BOLETINS ENVIADOS À ANA</h2>
+          <p>42 boletins enviados referentes aos últimos 2 meses.</p>
+        </div>
+        <div class="status-card">
+          <h2>BOLETINS PENDENTES</h2>
+          <p>18 boletins ainda aguardam envio à ANA.</p>
+        </div>
+      </div>
+      <div class="contador-boletins">
+        <h2>Boletins digitalizados: <span id="contadorBoletins"> 0 </span></h2>
+      </div>
+      <!-- GRID DOS BOLETINS -->
+      <div class="boletins-grid">
+        <!-- EXEMPLOS -->
+        <div class="boletim-card">
+          <h3>Boletim 01</h3>
+          <p>Data: 01/05/2026</p>
+          <p>Status do relatório diário.</p>
+          <span class="status"> ENVIADO </span>
+        </div>
+        <div class="boletim-card">
+          <h3>Boletim 02</h3>
+          <p>Data: 02/05/2026</p>
+          <p>Status do relatório diário.</p>
+          <span class="status"> ENVIADO </span>
+        </div>
+        <div class="boletim-card">
+          <h3>Boletim 03</h3>
+          <p>Data: 03/05/2026</p>
+          <p>Status do relatório diário.</p>
+          <span class="status"> ENVIADO </span>
+        </div>
+        <!-- DUPLICAR -->
+        <!-- DUPLIQUE OS CARDS ATÉ CHEGAR EM 60 -->
+      </div>
+      <!-- BOTÃO -->
+      <div class="arquivados-container">
+        <button class="arquivados-btn" onclick="visualizarArquivados()">
+          VISUALIZAR BOLETINS ARQUIVADOS
+        </button>
+      </div>
+    </main>
+    <!-- FOOTER -->
+    <footer>
+      <img src="assets/img/logo-sgb-rodape.png" class="logo-footer" />
+    </footer>
+    <script src="js/dashboard.js"></script>
+  </body>
+</html>

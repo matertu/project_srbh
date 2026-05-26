@@ -118,6 +118,15 @@ formFuncionario.addEventListener("submit", async (e) => {
     return;
   }
 
+  const nomeRegex = /^[A-Za-zÀ-ÿ\s]+$/;
+  if (!nomeRegex.test(nome)) {
+    mostrarToast(
+      "⚠ O nome não pode conter números ou caracteres especiais.",
+      "erro",
+    );
+    return;
+  }
+
   const payload = {
     nome_func: nome,
     login_func: login,

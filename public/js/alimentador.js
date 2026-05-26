@@ -281,6 +281,7 @@ async function carregarRecebidos() {
 async function carregarDigitacao() {
   const tbody = document.getElementById("tbodyDigitacao");
   const rotId = document.getElementById("selRoteiroDigit").value;
+  const tipoEst = document.getElementById("selTipoEstDigit").value;
   tbody.innerHTML =
     '<tr><td colspan="8" class="srbh-vazio">Carregando...</td></tr>';
   try {
@@ -289,6 +290,9 @@ async function carregarDigitacao() {
       bols = await Boletins.listarPorRoteiroViaEstacao(rotId, "R");
     } else {
       bols = await Boletins.listarPorStatus("R");
+    }
+    if (tipoEst) {
+      bols = bols.filter(b => b.estacao?.tipo_estacao === tipoEst);
     }
     document.querySelector("#contadorDigit .num").textContent = bols.length;
     if (!bols.length) {
@@ -383,13 +387,14 @@ async function filtrarArquivamento() {
   tbody.innerHTML =
     '<tr><td colspan="8" class="srbh-vazio">Carregando...</td></tr>';
   try {
-    let filtro = "status_boletim=in.(AN,E)";
+    let bols = await Boletins.listar("status_boletim=in.(AN,E)");
     const rotId = document.getElementById("filtroRotArq").value;
     const mes = document.getElementById("filtroMesArq").value;
-    // Busca boletins AN ou E
-    let bols = await Boletins.listar(filtro);
+    const tipoEst = document.getElementById("filtroTipoEstArq").value;
+
     if (rotId) bols = bols.filter((b) => b.estacao?.id_roteiro == rotId);
     if (mes) bols = bols.filter((b) => b.ano_mes_boletim?.startsWith(mes));
+    if (tipoEst) bols = bols.filter((b) => b.estacao?.tipo_estacao === tipoEst);
     if (!bols.length) {
       tbody.innerHTML =
         '<tr><td colspan="8" class="srbh-vazio">Nenhum boletim para arquivamento.</td></tr>';
@@ -406,7 +411,7 @@ async function filtrarArquivamento() {
       <td class="center">—</td>
       <td>${badgeStatusHTML(b.status_boletim)}</td>
       <td class="acoes-cell">
-        <button class="srbh-btn btn-small btn-primary" onclick="marcarArquivado(${b.id_boletim})">📦 Arquivar</button>
+        <button class="srbh-btn btn-small btn-primary" onclick="marcarArquivado(${b.id_boletim})">⏳ Solicitar Arquivamento</button>
       </td>
     </tr>`,
       )
@@ -419,14 +424,15 @@ async function filtrarArquivamento() {
 
 async function marcarArquivado(id) {
   try {
-    await Boletins.atualizarStatus(id, "A");
+    await Boletins.atualizarStatus(id, "AA");
     await Movimentacoes.criar({
       id_boletim: id,
       id_func: usuario.id,
       status_anterior: "AN",
-      status_novo: "A",
+      status_novo: "AA",
+      observacao_movimentacao: "Solicitação de arquivamento",
     });
-    mostrarToast("Boletim arquivado!");
+    mostrarToast("Solicitação de arquivamento enviada ao supervisor!");
     await filtrarArquivamento();
   } catch (e) {
     mostrarToast("Erro: " + e.message, "erro");
@@ -442,16 +448,17 @@ async function marcarArquivadoBloco() {
     return;
   }
   try {
-    await Boletins.atualizarStatusEmBloco(ids, "A");
+    await Boletins.atualizarStatusEmBloco(ids, "AA");
     for (const id of ids) {
       await Movimentacoes.criar({
         id_boletim: id,
         id_func: usuario.id,
         status_anterior: "AN",
-        status_novo: "A",
+        status_novo: "AA",
+        observacao_movimentacao: "Solicitação de arquivamento em bloco",
       });
     }
-    mostrarToast(`${ids.length} boletim(ns) arquivado(s)!`);
+    mostrarToast(`${ids.length} solicitação(ões) de arquivamento enviada(s)!`);
     await filtrarArquivamento();
   } catch (e) {
     mostrarToast("Erro: " + e.message, "erro");

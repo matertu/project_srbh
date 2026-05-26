@@ -294,6 +294,7 @@ body {
 .srbh-btn {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
   padding: 10px 20px;
   border: none;
@@ -362,10 +363,10 @@ body {
 
 /* ── Filtros ──────────────────────────────────────────────────────── */
 .srbh-filtros {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  align-items: flex-end;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+  align-items: end;
   margin-bottom: 20px;
   padding: 16px;
   background: white;
@@ -374,7 +375,11 @@ body {
 }
 .srbh-filtros .srbh-form-group {
   margin-bottom: 0;
-  min-width: 160px;
+  width: 100%;
+}
+.srbh-filtros .srbh-btn {
+  width: 100%;
+  justify-self: end;
 }
 .srbh-filtros .srbh-form-group label {
   font-size: 11px;
@@ -697,7 +702,8 @@ body {
   .kpi-card .kpi-valor { font-size: 24px; }
 
   .srbh-form-row { grid-template-columns: 1fr; }
-  .srbh-filtros { flex-direction: column; }
+  .srbh-filtros { grid-template-columns: 1fr; }
+  .srbh-filtros .srbh-btn { width: 100%; }
 
   .srbh-modal-content { padding: 20px 15px; border-radius: 12px; }
   .modal-split { grid-template-columns: 1fr; }

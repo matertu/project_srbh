@@ -4,27 +4,22 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SRBH - Supervisor</title>
-  <link rel="stylesheet" href="styles/srbh.css" />
+  <link rel="stylesheet" href="styles/srbh.css?v=2" />
   <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+  <script src="js/components.js"></script>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="srbh-header">
-    <img src="assets/img/logo-sgb-cabecalho.png" class="logo-topo" alt="SGB" />
-    <div class="user-info">
-      <span class="user-nome" id="userNome">---</span>
-      <span class="user-tipo">Supervisor</span>
-      <button class="btn-logout" onclick="logout()">Sair</button>
-    </div>
-  </header>
+  <!-- HEADER CENTRALIZADO -->
+  <srbh-header></srbh-header>
 
   <!-- TABS -->
   <nav class="srbh-tabs">
-    <button class="srbh-tab ativa" data-tab="dashboard">📊 Dashboard</button>
-    <button class="srbh-tab" data-tab="fechamento">📋 Fechamento e Produção</button>
-    <button class="srbh-tab" data-tab="relatorios">📈 Relatórios</button>
-    <button class="srbh-tab" data-tab="cadastros">⚙️ Cadastros</button>
+    <button class="srbh-tab ativa" data-tab="dashboard">Dashboard</button>
+    <button class="srbh-tab" data-tab="fechamento">Fechamento e Produção</button>
+    <button class="srbh-tab" data-tab="relatorios">Relatórios</button>
+    <button class="srbh-tab" data-tab="cadastros">Cadastros</button>
+    <button class="srbh-tab" data-tab="aprovacoes">Aprovações</button>
   </nav>
 
   <main class="srbh-main">
@@ -46,14 +41,19 @@
 
       <!-- Filtros -->
       <div class="srbh-filtros">
-        <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="filtroDashRot" style="min-width:180px;"></select></div>
+        <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="filtroDashRot"></select></div>
+        <div class="srbh-form-group"><label>Tipo de Estação</label>
+          <select class="srbh-select" id="filtroDashTipoEst">
+            <option value="">Todos</option><option value="P">P (Pluviométrica)</option><option value="F">F (Fluviométrica)</option><option value="PT">PT</option>
+          </select>
+        </div>
         <div class="srbh-form-group"><label>Status</label>
-          <select class="srbh-select" id="filtroDashStatus" style="min-width:140px;">
+          <select class="srbh-select" id="filtroDashStatus">
             <option value="">Todos</option><option value="R">Recebido</option><option value="D">Digitado</option>
             <option value="AN">Analisado</option><option value="E">Enviado</option><option value="A">Arquivado</option>
           </select>
         </div>
-        <button class="srbh-btn btn-primary btn-small" onclick="carregarTabelaDash()">Filtrar</button>
+        <button class="srbh-btn btn-primary btn-small" onclick="carregarTabelaDash() ">Filtrar</button>
       </div>
 
       <div class="srbh-card">
@@ -79,46 +79,59 @@
       </div>
 
       <div class="srbh-card" id="wizardCard" style="display:none;">
-        <div class="wizard-steps">
-          <div class="wizard-step ativo" id="ws1">1. Mês de Referência</div>
-          <div class="wizard-step" id="ws2">2. Conferência</div>
-          <div class="wizard-step" id="ws3">3. Confirmação</div>
-        </div>
-        <!-- Passo 1 -->
-        <div class="wizard-conteudo ativo" id="wc1">
-          <div class="srbh-form-group" style="max-width:300px;">
-            <label>Mês de Referência da Produção</label>
-            <input type="month" class="srbh-input" id="mesFechamento" />
-          </div>
-          <button class="srbh-btn btn-primary" onclick="avancarPasso2()">Avançar →</button>
-        </div>
-        <!-- Passo 2 -->
-        <div class="wizard-conteudo" id="wc2">
+        <h3 style="margin-bottom:16px;">Filtros de Exportação</h3>
+        <div class="srbh-filtros" style="margin-bottom:16px;">
           <div class="srbh-form-group">
-            <label>Upload do arquivo .mdb (simulação)</label>
-            <div class="upload-area" onclick="simularUploadMdb()">
-              <span class="upload-icon">📁</span>
-              <span class="upload-text">Clique para simular upload do .mdb</span>
-            </div>
+            <label>Mês de Referência</label>
+            <input type="month" class="srbh-input" id="filtroFechamentoMes" />
           </div>
-          <div id="resultadoConferencia" style="display:none;"></div>
-        </div>
-        <!-- Passo 3 -->
-        <div class="wizard-conteudo" id="wc3">
-          <div id="areaJustificativa" style="display:none;">
-            <div class="bloqueio-msg">⚠ Envio atrasado (>60 dias). Justificativa obrigatória antes do fechamento.</div>
-            <div class="srbh-form-group"><label>Tipo de Justificativa</label>
-              <select class="srbh-select" id="tipoJust">
-                <option value="">Selecione...</option>
-                <option value="Problemas técnicos">Problemas técnicos</option>
-                <option value="Aguardando boletins">Aguardando boletins</option>
-                <option value="Outros">Outros</option>
-              </select>
-            </div>
-            <div class="srbh-form-group"><label>Observação</label><textarea class="srbh-textarea" id="obsJust"></textarea></div>
+          <div class="srbh-form-group">
+            <label>Roteiro</label>
+            <select class="srbh-select" id="filtroFechamentoRot"></select>
           </div>
-          <button class="srbh-btn btn-success" onclick="confirmarFechamento()">✔ Confirmar Fechamento e Gerar Pacote ZIP</button>
+          <div class="srbh-form-group">
+            <label>Tipo de Estação</label>
+            <select class="srbh-select" id="filtroFechamentoTipoEst">
+              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+            </select>
+          </div>
+          <button class="srbh-btn btn-primary btn-small" onclick="carregarListaFechamento()">Filtrar</button>
         </div>
+
+        <div class="srbh-form-group" style="margin-bottom:20px;">
+          <label>Anexar banco .mdb conferido (Opcional - Plus)</label>
+          <div class="upload-area" onclick="document.getElementById('mdbInput').click()">
+            <span class="upload-icon">📁</span>
+            <span class="upload-text">Clique para selecionar o arquivo .mdb</span>
+          </div>
+          <input type="file" id="mdbInput" accept=".mdb" style="display:none;" onchange="document.getElementById('mdbName').textContent = this.files[0] ? 'Arquivo: ' + this.files[0].name : ''" />
+          <div id="mdbName" style="margin-top:8px;font-size:0.9rem;color:#6b7280;font-weight:bold;"></div>
+        </div>
+
+        <div class="srbh-table-wrapper" style="margin-bottom:16px;">
+          <table class="srbh-table" id="tabelaFechamentoLista">
+            <thead><tr>
+              <th class="center"><input type="checkbox" id="checkAllFechamento" /></th>
+              <th>Estação</th><th>Mês</th><th>Roteiro</th><th>Status</th>
+            </tr></thead>
+            <tbody id="tbodyFechamentoLista"></tbody>
+          </table>
+        </div>
+
+        <div id="areaJustificativa" style="display:none; margin-bottom:16px;">
+          <div class="bloqueio-msg">⚠ Seleção contém boletins atrasados (>60 dias). Justificativa obrigatória antes do fechamento.</div>
+          <div class="srbh-form-group"><label>Tipo de Justificativa</label>
+            <select class="srbh-select" id="tipoJust">
+              <option value="">Selecione...</option>
+              <option value="Problemas técnicos">Problemas técnicos</option>
+              <option value="Aguardando boletins">Aguardando boletins</option>
+              <option value="Outros">Outros</option>
+            </select>
+          </div>
+          <div class="srbh-form-group"><label>Observação</label><textarea class="srbh-textarea" id="obsJust"></textarea></div>
+        </div>
+
+        <button class="srbh-btn btn-success" id="btnGerarZip" onclick="confirmarFechamento()">✔ Confirmar Fechamento e Baixar ZIP</button>
       </div>
 
       <!-- Histórico de fechamentos -->
@@ -155,9 +168,9 @@
     <section class="srbh-secao" id="secCadastros">
       <!-- Sub-tabs de cadastro -->
       <div style="display:flex;gap:8px;margin-bottom:16px;">
-        <button class="srbh-btn btn-primary btn-small" onclick="mostrarCadastro('usuarios')">👤 Usuários</button>
-        <button class="srbh-btn btn-secondary btn-small" onclick="mostrarCadastro('estacoes')">📍 Estações</button>
-        <button class="srbh-btn btn-secondary btn-small" onclick="mostrarCadastro('roteiros')">🗺️ Roteiros</button>
+        <button id="btnCadUsuarios" class="srbh-btn btn-primary" onclick="mostrarCadastro('usuarios')">Usuários</button>
+        <button id="btnCadEstacoes" class="srbh-btn btn-secondary" onclick="mostrarCadastro('estacoes')">Estações</button>
+        <button id="btnCadRoteiros" class="srbh-btn btn-secondary" onclick="mostrarCadastro('roteiros')">Roteiros</button>
       </div>
 
       <!-- Cadastro Usuários -->
@@ -193,11 +206,16 @@
             <div class="srbh-form-group"><label>Código ANA (8 dígitos)</label><input type="text" class="srbh-input" id="cadCodAna" maxlength="8" required /></div>
             <div class="srbh-form-group"><label>Nome</label><input type="text" class="srbh-input" id="cadNomeEst" required /></div>
             <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="cadRoteiroEst" required></select></div>
+            <div class="srbh-form-group"><label>Tipo</label>
+              <select class="srbh-select" id="cadTipoEst" required>
+                <option value="">Selecione...</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+              </select>
+            </div>
           </div>
           <button type="submit" class="srbh-btn btn-primary">💾 Cadastrar Estação</button>
         </form>
         <div class="srbh-table-wrapper">
-          <table class="srbh-table"><thead><tr><th>ID</th><th>Código ANA</th><th>Nome</th><th>Roteiro</th></tr></thead>
+          <table class="srbh-table"><thead><tr><th>ID</th><th>Código ANA</th><th>Nome</th><th>Tipo</th><th>Roteiro</th></tr></thead>
             <tbody id="tbodyEstacoes"></tbody>
           </table>
         </div>
@@ -231,12 +249,34 @@
         </div>
       </div>
     </section>
+
+    <!-- ═══ SEÇÃO 5: APROVAÇÕES ═══ -->
+    <section class="srbh-secao" id="secAprovacoes">
+      <div class="srbh-card">
+        <h2>Aprovações de Arquivamento Pendentes</h2>
+        <div class="srbh-table-wrapper">
+          <table class="srbh-table" id="tabelaAprovacoes">
+            <thead><tr>
+              <th class="center"><input type="checkbox" id="checkAllAprov" /></th>
+              <th>Estação</th><th>Mês</th><th>Status Atual</th><th>Solicitante</th>
+              <th>Ações</th>
+            </tr></thead>
+            <tbody id="tbodyAprovacoes"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:16px;display:flex;gap:8px;">
+          <button class="srbh-btn btn-success" onclick="aprovarArquivamentoBloco()">✔ Aprovar Selecionados</button>
+          <button class="srbh-btn btn-danger" onclick="rejeitarArquivamentoBloco()">✖ Rejeitar Selecionados</button>
+        </div>
+      </div>
+    </section>
   </main>
 
-  <footer class="srbh-footer">
-    <img src="assets/img/logo-sgb-rodape.png" class="logo-footer" alt="SGB" />
-  </footer>
+  <!-- FOOTER CENTRALIZADO -->
+  <srbh-footer></srbh-footer>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
   <script src="js/data.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/charts.js"></script>

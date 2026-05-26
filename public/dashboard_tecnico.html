@@ -4,25 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>SRBH - Técnico</title>
-  <link rel="stylesheet" href="styles/srbh.css" />
+  <link rel="stylesheet" href="styles/srbh.css?v=2" />
   <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+  <script src="js/components.js"></script>
 </head>
 <body>
 
-  <!-- HEADER -->
-  <header class="srbh-header">
-    <img src="assets/img/logo-sgb-cabecalho.png" class="logo-topo" alt="SGB" />
-    <div class="user-info">
-      <span class="user-nome" id="userNome">---</span>
-      <span class="user-tipo">Técnico</span>
-      <button class="btn-logout" onclick="logout()">Sair</button>
-    </div>
-  </header>
+  <!-- HEADER CENTRALIZADO -->
+  <srbh-header></srbh-header>
 
   <!-- TABS -->
   <nav class="srbh-tabs">
-    <button class="srbh-tab ativa" data-tab="analise">🔍 Análise de Boletins</button>
-    <button class="srbh-tab" data-tab="arquivamento">📦 Arquivamento</button>
+    <button class="srbh-tab ativa" data-tab="analise">Análise de Boletins</button>
+    <button class="srbh-tab" data-tab="arquivamento">Arquivamento</button>
   </nav>
 
   <main class="srbh-main">
@@ -37,12 +31,16 @@
     <section class="srbh-secao ativa" id="secAnalise">
       <div class="srbh-card">
         <h2>Análise de Boletins Digitados</h2>
-        <div class="srbh-form-inline" style="margin-bottom:16px;">
           <div class="srbh-form-group">
             <label>Roteiro</label>
-            <select class="srbh-select" id="selRoteiroAnalise" style="min-width:250px;"></select>
+            <select class="srbh-select" id="selRoteiroAnalise"></select>
           </div>
-        </div>
+          <div class="srbh-form-group">
+            <label>Tipo de Estação</label>
+            <select class="srbh-select" id="selTipoEstAnalise" onchange="carregarAnalise()">
+              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+            </select>
+          </div>
         <div class="srbh-contador" id="contadorAnalise"><span class="num">0</span> boletins aguardando análise</div>
         <div style="margin-bottom:12px;">
           <button class="srbh-btn btn-success btn-small" onclick="marcarAnalisadoBloco()">✔ Marcar Selecionados como Analisado</button>
@@ -66,8 +64,20 @@
       <div class="srbh-card">
         <h2>Arquivamento de Boletins</h2>
         <div class="srbh-filtros">
-          <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="filtroRotArq" style="min-width:200px;"></select></div>
-          <div class="srbh-form-group"><label>Mês Obs.</label><input type="month" class="srbh-input" id="filtroMesArq" style="min-width:160px;" /></div>
+          <div class="srbh-form-group">
+            <label>Roteiro</label>
+            <select class="srbh-select" id="filtroRotArq"></select>
+          </div>
+          <div class="srbh-form-group">
+            <label>Tipo de Estação</label>
+            <select class="srbh-select" id="filtroTipoEstArq">
+              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+            </select>
+          </div>
+          <div class="srbh-form-group">
+            <label>Mês Obs.</label>
+            <input type="month" class="srbh-input" id="filtroMesArq" />
+          </div>
           <button class="srbh-btn btn-primary btn-small" onclick="filtrarArquivamento()">Filtrar</button>
         </div>
         <div style="margin-bottom:12px;">
@@ -128,9 +138,8 @@
     </div>
   </div>
 
-  <footer class="srbh-footer">
-    <img src="assets/img/logo-sgb-rodape.png" class="logo-footer" alt="SGB" />
-  </footer>
+  <!-- FOOTER CENTRALIZADO -->
+  <srbh-footer></srbh-footer>
 
   <script src="js/data.js"></script>
   <script src="js/utils.js"></script>

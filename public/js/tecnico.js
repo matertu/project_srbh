@@ -65,6 +65,7 @@ async function carregarKPIs() {
 async function carregarAnalise() {
   const tbody = document.getElementById("tbodyAnalise");
   const rotId = document.getElementById("selRoteiroAnalise").value;
+  const tipoEst = document.getElementById("selTipoEstAnalise").value;
   tbody.innerHTML =
     '<tr><td colspan="10" class="srbh-vazio">Carregando...</td></tr>';
   try {
@@ -73,6 +74,9 @@ async function carregarAnalise() {
       bols = await Boletins.listarPorRoteiroViaEstacao(rotId, "D");
     } else {
       bols = await Boletins.listarPorStatus("D");
+    }
+    if (tipoEst) {
+      bols = bols.filter(b => b.estacao?.tipo_estacao === tipoEst);
     }
     document.querySelector("#contadorAnalise .num").textContent = bols.length;
     if (!bols.length) {
@@ -137,7 +141,7 @@ function addLinhaAnotacao() {
   const div = document.createElement("div");
   div.className = "anotacao-row";
   div.innerHTML = `
-    <input type="number" class="srbh-input anot-dia" min="1" max="31" placeholder="Dia" />
+    <input type="number" class="srbh-input anot-dia" min="1" max="31" placeholder="Dia" oninput="if(this.value>31)this.value=31;if(this.value<1&&this.value!=='')this.value=1;" />
     <input type="text" class="srbh-input anot-valor" placeholder="Valor alterado" />
     <input type="text" class="srbh-input anot-obs" placeholder="Observação técnica" />
     <button class="srbh-btn btn-danger btn-icon btn-small" onclick="this.parentElement.remove()">✕</button>
@@ -243,6 +247,8 @@ async function verHistorico(id) {
 }
 
 // ── Arquivamento (idêntico ao alimentador) ───────────────────────
+
+
 async function filtrarArquivamento() {
   const tbody = document.getElementById("tbodyArquivamento");
   tbody.innerHTML =
@@ -251,8 +257,11 @@ async function filtrarArquivamento() {
     let bols = await Boletins.listar("status_boletim=in.(AN,E)");
     const rotId = document.getElementById("filtroRotArq").value;
     const mes = document.getElementById("filtroMesArq").value;
+    const tipoEst = document.getElementById("filtroTipoEstArq").value;
+
     if (rotId) bols = bols.filter((b) => b.estacao?.id_roteiro == rotId);
     if (mes) bols = bols.filter((b) => b.ano_mes_boletim?.startsWith(mes));
+    if (tipoEst) bols = bols.filter((b) => b.estacao?.tipo_estacao === tipoEst);
     if (!bols.length) {
       tbody.innerHTML =
         '<tr><td colspan="6" class="srbh-vazio">Nenhum boletim para arquivamento.</td></tr>';

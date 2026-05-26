@@ -67,9 +67,10 @@ function parseMesAno(mmAaaa) {
   return `${ano}-${mes}`;
 }
 
-// ── Validar código ANA (exatamente 8 dígitos) ────────────────────────
+// ── Validar código ANA (7 ou 8 dígitos) ──────────────────────────────
 function validarCodAna(codigo) {
-  return /^\d{8}$/.test(String(codigo).padStart(8, "0"));
+  const codLimpo = String(codigo).replace(/\D/g, "");
+  return codLimpo.length === 7 || codLimpo.length === 8;
 }
 
 // ── Badge de status ──────────────────────────────────────────────────
@@ -77,6 +78,7 @@ const STATUS_CONFIG = {
   R: { label: "Recebido", classe: "badge-r", cor: "#6b7280" },
   D: { label: "Digitado", classe: "badge-d", cor: "#2563eb" },
   AN: { label: "Analisado", classe: "badge-an", cor: "#16a34a" },
+  AA: { label: "Aprovação Pendente", classe: "badge-r", cor: "#f59e0b" },
   A: { label: "Arquivado", classe: "badge-a", cor: "#7c3aed" },
   E: { label: "Enviado", classe: "badge-e", cor: "#d97706" },
 };

@@ -6,6 +6,76 @@
     <title>Dashboard - Controle de Boletins</title>
     <link rel="stylesheet" href="styles/dashboard.css" />
     <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+    <style>
+      .btn-adicionar {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 12px;
+        background: #1b6ca8;
+        color: white;
+        font-size: 16px;
+        font-weight: bold;
+        cursor: pointer;
+        transition: 0.3s;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+        text-decoration: none;
+      }
+      .btn-adicionar:hover { background: #145b87; transform: translateY(-2px); }
+      .btn-adicionar span.icone { font-size: 22px; line-height: 1; }
+
+      .dashboard-actions {
+        display: flex;
+        justify-content: flex-end;
+        margin-bottom: 25px;
+      }
+
+      /* Cards do banco */
+      .boletim-card {
+        cursor: pointer;
+        position: relative;
+      }
+
+      .status-enviado  { background: #dff3e3; color: #207a36; }
+      .status-pendente { background: #fff3cd; color: #856404; }
+      .status-arquivado{ background: #e2e8f0; color: #475569; }
+      .status-r        { background: #dbeafe; color: #1e40af; }
+
+      /* Loading skeleton */
+      .skeleton {
+        background: linear-gradient(90deg, #e8edf2 25%, #f5f8fb 50%, #e8edf2 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+        border-radius: 10px;
+        height: 18px;
+        margin-bottom: 10px;
+      }
+      .skeleton.short { width: 60%; }
+      @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+      .boletim-card.loading { pointer-events: none; }
+
+      .grid-vazio {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 20px;
+        color: #888;
+        font-size: 18px;
+      }
+
+      .erro-banner {
+        background: #fef2f2;
+        border-left: 6px solid #a32d2d;
+        border-radius: 10px;
+        padding: 18px 22px;
+        color: #a32d2d;
+        font-size: 15px;
+        margin-bottom: 20px;
+        display: none;
+      }
+    </style>
   </head>
   <body>
     <!-- HEADER -->

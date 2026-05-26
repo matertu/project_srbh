@@ -227,40 +227,16 @@ footer {
 /* RESPONSIVO */
 
 @media (max-width: 700px) {
-  main {
-    padding: 20px 15px;
-  }
-
-  .logo-topo, .logo-footer {
-    width: 45%;
-  }
-
   .login-card {
-    padding: 30px 20px;
-    border-radius: 15px;
+    padding: 30px;
   }
 
   .login-card h1 {
-    font-size: 24px;
-    margin-bottom: 30px;
+    font-size: 28px;
   }
 
-  .form-img {
-    width: 30%;
-    margin-left: 35%;
-  }
-
-  .input-group label {
-    font-size: 16px;
-  }
-
-  .input-group input {
-    font-size: 16px;
-    padding: 14px;
-  }
-
-  .login-btn {
-    padding: 15px;
-    font-size: 18px;
+  .admin-btn {
+    font-size: 14px;
+    padding: 10px 18px;
   }
 }

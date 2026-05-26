@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Entrada de Dados - Boletim</title>
+    <link rel="stylesheet" href="styles/boletim-form.css" />
+    <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+  </head>
+  <body>
+
+    <!-- HEADER -->
+    <header>
+      <img src="assets/img/logo-sgb-cabecalho.png" class="logo-topo" alt="SGB Logo" />
+    </header>
+
+    <!-- MAIN -->
+    <main>
+      <h1 class="page-title">Entrada de Dados do Boletim</h1>
+      <p class="subtitle">Preencha os 124 campos abaixo para registrar os dados diários do boletim (31 dias × 4 variáveis).</p>
+
+      <div class="form-card">
+
+        <!-- METADADOS -->
+        <div class="meta-row">
+          <div class="meta-group">
+            <label>Nome do Observador</label>
+            <input type="text" id="nomeObs" placeholder="Ex: João Silva" />
+          </div>
+          <div class="meta-group">
+            <label>Mês (1–12)</label>
+            <input type="number" id="metaMes" min="1" max="12" placeholder="Ex: 5" />
+          </div>
+          <div class="meta-group">
+            <label>Ano</label>
+            <input type="number" id="metaAno" min="2000" max="2100" placeholder="Ex: 2026" />
+          </div>
+          <div class="meta-group">
+            <label>ID da Estação</label>
+            <input type="number" id="metaEstacao" placeholder="Ex: 101" />
+          </div>
+          <div class="meta-group">
+            <label>ID do Funcionário</label>
+            <input type="number" id="metaFunc" placeholder="Ex: 7" />
+          </div>
+        </div>
+
+        <!-- TABELA 31x4 -->
+        <div class="table-wrapper">
+          <table class="dados-table" id="tabelaDados">
+            <thead>
+              <tr>
+                <th>Dia</th>
+                <th>7h</th>
+                <th>Correção</th>
+                <th>17h</th>
+                <th>Correção</th>
+              </tr>
+            </thead>
+            <tbody id="corpoTabela"></tbody>
+          </table>
+        </div>
+
+        <div class="actions">
+          <button class="btn-secondary" onclick="limparTabela()">LIMPAR TUDO</button>
+          <button class="btn-primary"   onclick="gerarBoletim()">GERAR BOLETIM →</button>
+        </div>
+      </div>
+
+      <!-- RESULTADO -->
+      <div id="resultado">
+        <h2>Objeto Boletim Gerado</h2>
+        <pre id="outputBoletim"></pre>
+      </div>
+    </main>
+
+    <!-- FOOTER -->
+    <footer>
+      <img src="assets/img/logo-sgb-rodape.png" class="logo-footer" alt="SGB Rodapé" />
+    </footer>
+
+    <!-- TOAST -->
+    <div class="toast" id="toast"></div>
+
+    <!--
+      Ordem de carregamento dos scripts:
+        1. Boletim.js      — classe Boletim (deve vir antes dos outros)
+        2. boletimAPI.js   — funções de acesso ao Supabase
+        3. boletim-form.js — lógica do formulário
+    -->
+    <script src="js/Boletim.js"></script>
+    <script src="js/boletimAPI.js"></script>
+    <script src="js/boletim-form.js"></script>
+  </body>
+</html>

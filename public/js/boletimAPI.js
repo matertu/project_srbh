@@ -1,14 +1,14 @@
 // ── Configuração Supabase ─────────────────────────────────────
-const SUPABASE_URL     = "https://ytrowyxkuemlqmiyfvll.supabase.co/rest/v1";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI"; 
+const SUPABASE_URL = "https://ytrowyxkuemlqmiyfvll.supabase.co/rest/v1";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI";
 
 const headers = {
-  "Content-Type":  "application/json",
-  "apikey":        SUPABASE_ANON_KEY,
-  "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-  "Prefer":        "return=representation",
+  "Content-Type": "application/json",
+  apikey: SUPABASE_ANON_KEY,
+  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+  Prefer: "return=representation",
 };
-
 
 // ── Salvar Boletim ────────────────────────────────────────────
 /**
@@ -26,29 +26,30 @@ const headers = {
  */
 async function salvarBoletim(dados) {
   const payload = {
-    id_estacao:                dados.id_estacao,
-    id_func:                   dados.id_func ?? null,
-    ano_mes_boletim:           dados.ano_mes_boletim,
-    status_boletim:            dados.status_boletim ?? "R",
-    ficheiro_boletim:          dados.ficheiro_boletim,
-    data_recebimento_boletim:  dados.data_recebimento_boletim,
+    id_estacao: dados.id_estacao,
+    id_func: dados.id_func ?? null,
+    ano_mes_boletim: dados.ano_mes_boletim,
+    status_boletim: dados.status_boletim ?? "R",
+    ficheiro_boletim: dados.ficheiro_boletim,
+    data_recebimento_boletim: dados.data_recebimento_boletim,
   };
 
   const response = await fetch(`${SUPABASE_URL}/boletim`, {
-    method:  "POST",
+    method: "POST",
     headers: headers,
-    body:    JSON.stringify(payload),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     const erro = await response.json();
-    throw new Error(`Erro ao salvar boletim: ${erro.message ?? JSON.stringify(erro)}`);
+    throw new Error(
+      `Erro ao salvar boletim: ${erro.message ?? JSON.stringify(erro)}`,
+    );
   }
 
   const resultado = await response.json();
   return Array.isArray(resultado) ? resultado[0] : resultado;
 }
-
 
 // ── Buscar Boletins ───────────────────────────────────────────
 /**
@@ -64,27 +65,30 @@ async function salvarBoletim(dados) {
 async function buscarBoletins(filtros = {}) {
   const params = new URLSearchParams();
 
-  if (filtros.id_estacao)     params.append("id_estacao",     `eq.${filtros.id_estacao}`);
-  if (filtros.id_func)        params.append("id_func",        `eq.${filtros.id_func}`);
-  if (filtros.status_boletim) params.append("status_boletim", `eq.${filtros.status_boletim}`);
+  if (filtros.id_estacao)
+    params.append("id_estacao", `eq.${filtros.id_estacao}`);
+  if (filtros.id_func) params.append("id_func", `eq.${filtros.id_func}`);
+  if (filtros.status_boletim)
+    params.append("status_boletim", `eq.${filtros.status_boletim}`);
 
   params.append("order", "id_boletim.desc");
 
   const url = `${SUPABASE_URL}/boletim?${params.toString()}`;
 
   const response = await fetch(url, {
-    method:  "GET",
+    method: "GET",
     headers: headers,
   });
 
   if (!response.ok) {
     const erro = await response.json();
-    throw new Error(`Erro ao buscar boletins: ${erro.message ?? JSON.stringify(erro)}`);
+    throw new Error(
+      `Erro ao buscar boletins: ${erro.message ?? JSON.stringify(erro)}`,
+    );
   }
 
   return await response.json();
 }
-
 
 // ── Buscar Boletim por ID ─────────────────────────────────────
 /**
@@ -96,18 +100,19 @@ async function buscarBoletins(filtros = {}) {
 async function buscarBoletimPorId(id) {
   const response = await fetch(
     `${SUPABASE_URL}/boletim?id_boletim=eq.${id}&limit=1`,
-    { method: "GET", headers: headers }
+    { method: "GET", headers: headers },
   );
 
   if (!response.ok) {
     const erro = await response.json();
-    throw new Error(`Erro ao buscar boletim: ${erro.message ?? JSON.stringify(erro)}`);
+    throw new Error(
+      `Erro ao buscar boletim: ${erro.message ?? JSON.stringify(erro)}`,
+    );
   }
 
   const resultado = await response.json();
   return resultado.length > 0 ? resultado[0] : null;
 }
-
 
 // ── Atualizar Boletim ─────────────────────────────────────────
 /**
@@ -118,24 +123,22 @@ async function buscarBoletimPorId(id) {
  * @returns {Promise<Object>}
  */
 async function atualizarBoletim(id, campos) {
-  const response = await fetch(
-    `${SUPABASE_URL}/boletim?id_boletim=eq.${id}`,
-    {
-      method:  "PATCH",
-      headers: headers,
-      body:    JSON.stringify(campos),
-    }
-  );
+  const response = await fetch(`${SUPABASE_URL}/boletim?id_boletim=eq.${id}`, {
+    method: "PATCH",
+    headers: headers,
+    body: JSON.stringify(campos),
+  });
 
   if (!response.ok) {
     const erro = await response.json();
-    throw new Error(`Erro ao atualizar boletim: ${erro.message ?? JSON.stringify(erro)}`);
+    throw new Error(
+      `Erro ao atualizar boletim: ${erro.message ?? JSON.stringify(erro)}`,
+    );
   }
 
   const resultado = await response.json();
   return Array.isArray(resultado) ? resultado[0] : resultado;
 }
-
 
 // ── Deletar Boletim ───────────────────────────────────────────
 /**
@@ -145,22 +148,20 @@ async function atualizarBoletim(id, campos) {
  * @returns {Promise<boolean>} true se deletado com sucesso
  */
 async function deletarBoletim(id) {
-  const response = await fetch(
-    `${SUPABASE_URL}/boletim?id_boletim=eq.${id}`,
-    {
-      method:  "DELETE",
-      headers: { ...headers, "Prefer": "return=minimal" },
-    }
-  );
+  const response = await fetch(`${SUPABASE_URL}/boletim?id_boletim=eq.${id}`, {
+    method: "DELETE",
+    headers: { ...headers, Prefer: "return=minimal" },
+  });
 
   if (!response.ok) {
     const erro = await response.json();
-    throw new Error(`Erro ao deletar boletim: ${erro.message ?? JSON.stringify(erro)}`);
+    throw new Error(
+      `Erro ao deletar boletim: ${erro.message ?? JSON.stringify(erro)}`,
+    );
   }
 
   return true;
 }
-
 
 // ── Helper: converte objeto Boletim → payload do banco ────────
 /**
@@ -177,22 +178,20 @@ function boletimParaPayload(boletim, ficheiro, dataRecebimento) {
   const ano = boletim.getAno();
 
   return {
-    id_estacao:                boletim.getIdEstacao(),
-    id_func:                   boletim.getIdFunc() || null,
-    ano_mes_boletim:           `${ano}-${mes}-01`,
-    status_boletim:            boletim.getStatus() ?? "R",
-    ficheiro_boletim:          ficheiro,
-    data_recebimento_boletim:  dataRecebimento,
+    id_estacao: boletim.getIdEstacao(),
+    id_func: boletim.getIdFunc() || null,
+    ano_mes_boletim: `${ano}-${mes}-01`,
+    status_boletim: boletim.getStatus() ?? "R",
+    ficheiro_boletim: ficheiro,
+    data_recebimento_boletim: dataRecebimento,
   };
 }
-
 
 // ── Exportações (use conforme seu ambiente) ───────────────────
 // Para uso com import/export (ES Modules):
 // export { salvarBoletim, buscarBoletins, buscarBoletimPorId, atualizarBoletim, deletarBoletim, boletimParaPayload };
 
 // Para uso direto no browser (script tag), as funções já ficam no escopo global.
-
 
 // ════════════════════════════════════════════════════════════════
 // EXEMPLO DE USO

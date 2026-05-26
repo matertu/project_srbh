@@ -1,0 +1,139 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRBH - Técnico</title>
+  <link rel="stylesheet" href="styles/srbh.css" />
+  <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+</head>
+<body>
+
+  <!-- HEADER -->
+  <header class="srbh-header">
+    <img src="assets/img/logo-sgb-cabecalho.png" class="logo-topo" alt="SGB" />
+    <div class="user-info">
+      <span class="user-nome" id="userNome">---</span>
+      <span class="user-tipo">Técnico</span>
+      <button class="btn-logout" onclick="logout()">Sair</button>
+    </div>
+  </header>
+
+  <!-- TABS -->
+  <nav class="srbh-tabs">
+    <button class="srbh-tab ativa" data-tab="analise">🔍 Análise de Boletins</button>
+    <button class="srbh-tab" data-tab="arquivamento">📦 Arquivamento</button>
+  </nav>
+
+  <main class="srbh-main">
+    <!-- KPIs -->
+    <div class="kpi-grid">
+      <div class="kpi-card info"><div class="kpi-valor" id="kpiAguardando">0</div><div class="kpi-label">Aguardando análise</div></div>
+      <div class="kpi-card sucesso"><div class="kpi-valor" id="kpiAnalisados">0</div><div class="kpi-label">Analisados no mês</div></div>
+      <div class="kpi-card alerta"><div class="kpi-valor" id="kpiAnotacoes">0</div><div class="kpi-label">Com anotações</div></div>
+    </div>
+
+    <!-- ═══ SEÇÃO 1: ANÁLISE ═══ -->
+    <section class="srbh-secao ativa" id="secAnalise">
+      <div class="srbh-card">
+        <h2>Análise de Boletins Digitados</h2>
+        <div class="srbh-form-inline" style="margin-bottom:16px;">
+          <div class="srbh-form-group">
+            <label>Roteiro</label>
+            <select class="srbh-select" id="selRoteiroAnalise" style="min-width:250px;"></select>
+          </div>
+        </div>
+        <div class="srbh-contador" id="contadorAnalise"><span class="num">0</span> boletins aguardando análise</div>
+        <div style="margin-bottom:12px;">
+          <button class="srbh-btn btn-success btn-small" onclick="marcarAnalisadoBloco()">✔ Marcar Selecionados como Analisado</button>
+        </div>
+        <div class="srbh-table-wrapper">
+          <table class="srbh-table" id="tabelaAnalise">
+            <thead><tr>
+              <th><input type="checkbox" id="checkAllAnalise" /></th>
+              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Tipo</th>
+              <th data-sort>Mês Obs.</th><th data-sort>Recebimento</th><th data-sort>Digitado por</th>
+              <th>Status</th><th>Alerta</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbodyAnalise"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SEÇÃO 2: ARQUIVAMENTO ═══ -->
+    <section class="srbh-secao" id="secArquivamento">
+      <div class="srbh-card">
+        <h2>Arquivamento de Boletins</h2>
+        <div class="srbh-filtros">
+          <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="filtroRotArq" style="min-width:200px;"></select></div>
+          <div class="srbh-form-group"><label>Mês Obs.</label><input type="month" class="srbh-input" id="filtroMesArq" style="min-width:160px;" /></div>
+          <button class="srbh-btn btn-primary btn-small" onclick="filtrarArquivamento()">Filtrar</button>
+        </div>
+        <div style="margin-bottom:12px;">
+          <button class="srbh-btn btn-primary btn-small" onclick="marcarArquivadoBloco()">📦 Arquivar Selecionados</button>
+        </div>
+        <div class="srbh-table-wrapper">
+          <table class="srbh-table" id="tabelaArquivamento">
+            <thead><tr>
+              <th><input type="checkbox" id="checkAllArq" /></th>
+              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Mês Obs.</th>
+              <th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbodyArquivamento"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL: ANÁLISE -->
+  <div class="srbh-modal" id="modalAnalise">
+    <div class="srbh-modal-content large">
+      <div class="modal-header">
+        <h2 id="modalAnaliseTitulo">Analisar Boletim</h2>
+        <button class="modal-close" onclick="fecharModal('modalAnalise')">×</button>
+      </div>
+      <div class="modal-split">
+        <div class="preview-area" id="modalImagemArea">
+          <div class="preview-placeholder">Selecione um boletim para visualizar</div>
+        </div>
+        <div>
+          <div id="painelPergunta">
+            <p style="font-size:16px;font-weight:600;color:#0b3d5c;margin-bottom:16px;">Este boletim possui anotações?</p>
+            <div style="display:flex;gap:12px;">
+              <button class="srbh-btn btn-warning" onclick="mostrarFormAnotacao()">Sim</button>
+              <button class="srbh-btn btn-success" onclick="confirmarAnalise()">Não — Confirmar Análise</button>
+            </div>
+          </div>
+          <div id="painelAnotacao" style="display:none;">
+            <h3>Registrar Anotações</h3>
+            <div id="listaAnotacoes"></div>
+            <button class="srbh-btn btn-secondary btn-small" onclick="addLinhaAnotacao()" style="margin:8px 0 16px;">＋ Adicionar Anotação</button>
+            <button class="srbh-btn btn-success" onclick="salvarAnotacoesEAnalisar()">💾 Salvar Anotações e Marcar como Analisado</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: HISTÓRICO -->
+  <div class="srbh-modal" id="modalHistorico">
+    <div class="srbh-modal-content small">
+      <div class="modal-header">
+        <h2>Histórico de Movimentação</h2>
+        <button class="modal-close" onclick="fecharModal('modalHistorico')">×</button>
+      </div>
+      <div id="historicoConteudo"></div>
+    </div>
+  </div>
+
+  <footer class="srbh-footer">
+    <img src="assets/img/logo-sgb-rodape.png" class="logo-footer" alt="SGB" />
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/utils.js"></script>
+  <script src="js/tecnico.js"></script>
+</body>
+</html>

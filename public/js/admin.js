@@ -1,12 +1,13 @@
 // ── Configurações do Supabase (reaproveitando credenciais de boletimAPI.js) ──
 const SUPABASE_URL = "https://ytrowyxkuemlqmiyfvll.supabase.co/rest/v1";
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI";
+const SUPABASE_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI";
 
 const headers = {
-  "Content-Type":  "application/json",
-  "apikey":        SUPABASE_ANON_KEY,
-  "Authorization": `Bearer ${SUPABASE_ANON_KEY}`,
-  "Prefer":        "return=representation"
+  "Content-Type": "application/json",
+  apikey: SUPABASE_ANON_KEY,
+  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
+  Prefer: "return=representation",
 };
 
 // ── Elementos do DOM ──
@@ -22,7 +23,7 @@ function mostrarToast(mensagem, tipo) {
   const toast = document.getElementById("toast");
   toast.textContent = mensagem;
   toast.className = `toast show ${tipo}`;
-  
+
   setTimeout(() => {
     toast.classList.remove("show");
   }, 4000);
@@ -31,14 +32,19 @@ function mostrarToast(mensagem, tipo) {
 async function buscarFuncionarios() {
   mostrarLoader(true);
   try {
-    const response = await fetch(`${SUPABASE_URL}/funcionarios?select=id_func,nome_func,login_func,tipo_func&order=id_func.desc`, {
-      method: "GET",
-      headers: headers
-    });
+    const response = await fetch(
+      `${SUPABASE_URL}/funcionarios?select=id_func,nome_func,login_func,tipo_func&order=id_func.desc`,
+      {
+        method: "GET",
+        headers: headers,
+      },
+    );
 
     if (!response.ok) {
       const erro = await response.json();
-      throw new Error(erro.message || "Erro desconhecido ao carregar colaboradores.");
+      throw new Error(
+        erro.message || "Erro desconhecido ao carregar colaboradores.",
+      );
     }
 
     const funcionarios = await response.json();
@@ -74,15 +80,15 @@ function renderizarFuncionarios(lista) {
 
   listaVazia.style.display = "none";
 
-  lista.forEach(func => {
+  lista.forEach((func) => {
     const item = document.createElement("div");
     item.className = "funcionario-item";
-    
+
     const cargosExibicao = {
       tecnico: "Técnico",
       supervisor: "Supervisor",
       digitador: "Digitador",
-      alimentador: "Alimentador"
+      alimentador: "Alimentador",
     };
     const cargoFormatado = cargosExibicao[func.tipo_func] || func.tipo_func;
 
@@ -116,7 +122,7 @@ formFuncionario.addEventListener("submit", async (e) => {
     nome_func: nome,
     login_func: login,
     senha_func: senha,
-    tipo_func: tipo
+    tipo_func: tipo,
   };
 
   const btnCadastrar = formFuncionario.querySelector(".btn-cadastrar-func");
@@ -128,24 +134,27 @@ formFuncionario.addEventListener("submit", async (e) => {
     const response = await fetch(`${SUPABASE_URL}/funcionarios`, {
       method: "POST",
       headers: headers,
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
     });
 
     if (!response.ok) {
       const erro = await response.json();
       // Tratar erro de login duplicado
       if (erro.message && erro.message.includes("violates unique constraint")) {
-        throw new Error("Este login de acesso já está em uso por outro funcionário.");
+        throw new Error(
+          "Este login de acesso já está em uso por outro funcionário.",
+        );
       }
-      throw new Error(erro.message || "Não foi possível cadastrar o colaborador.");
+      throw new Error(
+        erro.message || "Não foi possível cadastrar o colaborador.",
+      );
     }
 
     mostrarToast("✔ Funcionário cadastrado com sucesso!", "sucesso");
     formFuncionario.reset();
-    
+
     // Atualizar lista
     await buscarFuncionarios();
-
   } catch (error) {
     console.error("Erro ao cadastrar funcionário:", error);
     mostrarToast(`✖ Erro: ${error.message}`, "erro");
@@ -154,8 +163,6 @@ formFuncionario.addEventListener("submit", async (e) => {
     btnCadastrar.disabled = false;
   }
 });
-
-
 
 // ── Iniciar página ──
 window.onload = () => {

@@ -57,9 +57,10 @@ function mascaraMesAno(input) {
       v = v.slice(0, 2) + "/" + v.slice(2);
     }
     this.value = v;
+  });
+}
 
-
-    // ── Utilitário de Criação de Elementos DOM Seguros ────────────────────
+// ── Utilitário de Criação de Elementos DOM Seguros ────────────────────
     function criarElemento(tag, atributos = {}, filhos = []) {
       const el = document.createElement(tag);
       for (const [key, value] of Object.entries(atributos)) {

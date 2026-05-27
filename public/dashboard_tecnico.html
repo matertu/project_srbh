@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +9,7 @@
   <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
   <script src="js/components.js"></script>
 </head>
+
 <body>
 
   <!-- HEADER CENTRALIZADO -->
@@ -22,37 +24,58 @@
   <main class="srbh-main">
     <!-- KPIs -->
     <div class="kpi-grid">
-      <div class="kpi-card info"><div class="kpi-valor" id="kpiAguardando">0</div><div class="kpi-label">Aguardando análise</div></div>
-      <div class="kpi-card sucesso"><div class="kpi-valor" id="kpiAnalisados">0</div><div class="kpi-label">Analisados no mês</div></div>
-      <div class="kpi-card alerta"><div class="kpi-valor" id="kpiAnotacoes">0</div><div class="kpi-label">Com anotações</div></div>
+      <div class="kpi-card info">
+        <div class="kpi-valor" id="kpiAguardando">0</div>
+        <div class="kpi-label">Aguardando análise</div>
+      </div>
+      <div class="kpi-card sucesso">
+        <div class="kpi-valor" id="kpiAnalisados">0</div>
+        <div class="kpi-label">Analisados no mês</div>
+      </div>
+      <div class="kpi-card alerta">
+        <div class="kpi-valor" id="kpiAnotacoes">0</div>
+        <div class="kpi-label">Com anotações</div>
+      </div>
     </div>
 
     <!-- ═══ SEÇÃO 1: ANÁLISE ═══ -->
     <section class="srbh-secao ativa" id="secAnalise">
       <div class="srbh-card">
         <h2>Análise de Boletins Digitados</h2>
-          <div class="srbh-form-group">
-            <label>Roteiro</label>
-            <select class="srbh-select" id="selRoteiroAnalise"></select>
-          </div>
-          <div class="srbh-form-group">
-            <label>Tipo de Estação</label>
-            <select class="srbh-select" id="selTipoEstAnalise" onchange="carregarAnalise()">
-              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
-            </select>
-          </div>
+        <div class="srbh-form-group">
+          <label>Roteiro</label>
+          <select class="srbh-select" id="selRoteiroAnalise"></select>
+        </div>
+        <div class="srbh-form-group">
+          <label>Tipo de Estação</label>
+          <select class="srbh-select" id="selTipoEstAnalise" onchange="carregarAnalise()">
+            <option value="">Todos</option>
+            <option value="P">P</option>
+            <option value="F">F</option>
+            <option value="PT">PT</option>
+          </select>
+        </div>
         <div class="srbh-contador" id="contadorAnalise"><span class="num">0</span> boletins aguardando análise</div>
         <div style="margin-bottom:12px;">
-          <button class="srbh-btn btn-success btn-small" onclick="marcarAnalisadoBloco()">✔ Marcar Selecionados como Analisado</button>
+          <button class="srbh-btn btn-success btn-small" onclick="marcarAnalisadoBloco()">✔ Marcar Selecionados como
+            Analisado</button>
         </div>
         <div class="srbh-table-wrapper">
           <table class="srbh-table" id="tabelaAnalise">
-            <thead><tr>
-              <th><input type="checkbox" id="checkAllAnalise" /></th>
-              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Tipo</th>
-              <th data-sort>Mês Obs.</th><th data-sort>Recebimento</th><th data-sort>Digitado por</th>
-              <th>Status</th><th>Alerta</th><th>Ações</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="checkAllAnalise" /></th>
+                <th data-sort>Código</th>
+                <th data-sort>Estação</th>
+                <th data-sort>Tipo</th>
+                <th data-sort>Mês Obs.</th>
+                <th data-sort>Recebimento</th>
+                <th data-sort>Digitado por</th>
+                <th>Status</th>
+                <th>Alerta</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
             <tbody id="tbodyAnalise"></tbody>
           </table>
         </div>
@@ -71,7 +94,10 @@
           <div class="srbh-form-group">
             <label>Tipo de Estação</label>
             <select class="srbh-select" id="filtroTipoEstArq">
-              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+              <option value="">Todos</option>
+              <option value="P">P</option>
+              <option value="F">F</option>
+              <option value="PT">PT</option>
             </select>
           </div>
           <div class="srbh-form-group">
@@ -81,15 +107,21 @@
           <button class="srbh-btn btn-primary btn-small" onclick="filtrarArquivamento()">Filtrar</button>
         </div>
         <div style="margin-bottom:12px;">
-          <button class="srbh-btn btn-primary btn-small" onclick="marcarArquivadoBloco()">📦 Arquivar Selecionados</button>
+          <button class="srbh-btn btn-primary btn-small" onclick="marcarArquivadoBloco()">📦 Arquivar
+            Selecionados</button>
         </div>
         <div class="srbh-table-wrapper">
           <table class="srbh-table" id="tabelaArquivamento">
-            <thead><tr>
-              <th><input type="checkbox" id="checkAllArq" /></th>
-              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Mês Obs.</th>
-              <th>Status</th><th>Ações</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th><input type="checkbox" id="checkAllArq" /></th>
+                <th data-sort>Código</th>
+                <th data-sort>Estação</th>
+                <th data-sort>Mês Obs.</th>
+                <th>Status</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
             <tbody id="tbodyArquivamento"></tbody>
           </table>
         </div>
@@ -110,20 +142,23 @@
         </div>
         <div>
           <div id="painelPergunta">
-            <p style="font-size:16px;font-weight:600;color:#0b3d5c;margin-bottom:16px;">Este boletim possui anotações?</p>
+            <p style="font-size:16px;font-weight:600;color:#0b3d5c;margin-bottom:16px;">Inserir Anotação?</p>
             <div style="display:flex;gap:12px;">
               <button class="srbh-btn btn-secondary" onclick="toggleAnotacao(true)" style="flex:1;">Sim</button>
               <button class="srbh-btn btn-secondary" onclick="toggleAnotacao(false)" style="flex:1;">Não</button>
             </div>
           </div>
-          
+
           <div id="painelAnotacao" style="display:none; margin-top:16px;">
             <h3>Registrar Anotações</h3>
             <div id="listaAnotacoes"></div>
-            <button class="srbh-btn btn-secondary btn-small" onclick="addLinhaAnotacao()" style="margin:8px 0 16px;">＋ Adicionar Anotação</button>
+            <button class="srbh-btn btn-secondary btn-small" onclick="addLinhaAnotacao()" style="margin:8px 0 16px;">＋
+              Adicionar Anotação</button>
           </div>
-          
-          <button class="srbh-btn btn-success" id="btnConfirmarAnalise" style="margin-top:16px; width:100%; display:none;" onclick="salvarAnotacoesEAnalisar()">Confirmar Análise</button>
+
+          <button class="srbh-btn btn-success" id="btnConfirmarAnalise"
+            style="margin-top:16px; width:100%; display:none;" onclick="salvarAnotacoesEAnalisar()">Confirmar
+            Análise</button>
         </div>
       </div>
     </div>
@@ -150,4 +185,5 @@
   <script src="js/tecnico/analise.js"></script>
   <script src="js/tecnico/arquivamento.js"></script>
 </body>
+
 </html>

@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SRBH - Alimentador / Digitador</title>
+  <link rel="stylesheet" href="styles/srbh.css?v=2" />
+  <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+  <script src="js/components.js"></script>
+</head>
+<body>
+
+  <!-- HEADER CENTRALIZADO -->
+  <srbh-header></srbh-header>
+
+  <!-- TABS -->
+  <nav class="srbh-tabs">
+    <button class="srbh-tab ativa" data-tab="recebimento">Recebimento</button>
+    <button class="srbh-tab" data-tab="digitacao">Digitação</button>
+    <button class="srbh-tab" data-tab="arquivamento">Arquivamento</button>
+  </nav>
+
+  <main class="srbh-main">
+
+    <!-- KPIs -->
+    <div class="kpi-grid" id="kpiGrid">
+      <div class="kpi-card"><div class="kpi-valor" id="kpiRecebidos">0</div><div class="kpi-label">Recebidos no mês</div></div>
+      <div class="kpi-card info"><div class="kpi-valor" id="kpiDigitados">0</div><div class="kpi-label">Digitados no mês</div></div>
+      <div class="kpi-card alerta"><div class="kpi-valor" id="kpiPendentes">0</div><div class="kpi-label">Pendentes</div></div>
+    </div>
+
+    <!-- ═══ SEÇÃO 1: RECEBIMENTO ═══ -->
+    <section class="srbh-secao ativa" id="secRecebimento">
+      <div class="srbh-card">
+        <h2>Registrar Recebimento de Boletim</h2>
+
+        <div class="alerta-duplicata" id="alertaDuplicata">
+          <div class="alerta-msg" id="alertaDuplicataMsg"></div>
+          <button class="srbh-btn btn-warning btn-small" onclick="substituirBoletim()">Substituir</button>
+          <button class="srbh-btn btn-secondary btn-small" onclick="cancelarSubstituicao()">Cancelar</button>
+        </div>
+
+        <form id="formRecebimento" autocomplete="off">
+          <div class="srbh-form-row">
+            <div class="srbh-form-group">
+              <label>Código da Estação (8 dígitos)</label>
+              <input type="text" class="srbh-input" id="codEstacao" maxlength="8" placeholder="Ex: 10100000" required />
+            </div>
+            <div class="srbh-form-group">
+              <label>Nome da Estação</label>
+              <input type="text" class="srbh-input" id="nomeEstacao" readonly placeholder="Auto-preenchido" />
+            </div>
+            <div class="srbh-form-group">
+              <label>Roteiro</label>
+              <input type="text" class="srbh-input" id="roteiroEstacao" readonly placeholder="Auto-preenchido" />
+            </div>
+          </div>
+          <div class="srbh-form-row">
+            <div class="srbh-form-group">
+              <label>Mês de Observação</label>
+              <input type="text" class="srbh-input" id="mesObs" placeholder="MM/AAAA" maxlength="7" required />
+            </div>
+            <div class="srbh-form-group">
+              <label>Tipo de Recebimento</label>
+              <select class="srbh-select" id="tipoReceb" required>
+                <option value="">Selecione...</option>
+                <option value="WhatsApp">WhatsApp</option>
+                <option value="Correios">Correios</option>
+                <option value="Digitalização local">Digitalização local</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="srbh-form-group">
+            <label>Arquivo do Boletim (JPG, PNG ou PDF)</label>
+            <div class="upload-area" id="uploadArea">
+              <input type="file" id="fileInput" accept=".jpg,.jpeg,.png,.pdf" />
+              <span class="upload-icon">📄</span>
+              <span class="upload-text">Clique ou arraste o arquivo aqui</span>
+            </div>
+            <div class="upload-preview" id="uploadPreview"><img id="previewImg" /></div>
+          </div>
+
+          <button type="submit" class="srbh-btn btn-primary">📥 Registrar Recebimento</button>
+        </form>
+      </div>
+
+      <!-- Tabela de recebidos recentes -->
+      <div class="srbh-card">
+        <h2>Boletins Recebidos Recentemente</h2>
+        <div class="srbh-table-wrapper">
+          <table class="srbh-table" id="tabelaRecebidos">
+            <thead><tr>
+              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Mês Obs.</th>
+              <th data-sort>Recebimento</th><th>Arquivo</th><th>Status</th>
+            </tr></thead>
+            <tbody id="tbodyRecebidos"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SEÇÃO 2: DIGITAÇÃO ═══ -->
+    <section class="srbh-secao" id="secDigitacao">
+      <div class="srbh-card">
+        <h2>Digitação de Boletins</h2>
+        <div class="srbh-form-inline" style="margin-bottom:16px;">
+          <div class="srbh-form-group">
+            <label>Roteiro</label>
+            <select class="srbh-select" id="selRoteiroDigit"></select>
+          </div>
+          <div class="srbh-form-group">
+            <label>Tipo de Estação</label>
+            <select class="srbh-select" id="selTipoEstDigit" onchange="carregarDigitacao()">
+              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+            </select>
+          </div>
+        </div>
+        <div class="srbh-contador" id="contadorDigit"><span class="num">0</span> boletins aguardando digitação</div>
+        <div style="margin-bottom:12px;">
+          <button class="srbh-btn btn-primary btn-small" onclick="marcarDigitadoBloco()">✔ Marcar Selecionados como Digitado</button>
+        </div>
+        <div class="srbh-table-wrapper">
+          <table class="srbh-table" id="tabelaDigitacao">
+            <thead><tr>
+              <th><input type="checkbox" id="checkAllDigit" /></th>
+              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Mês Obs.</th>
+              <th data-sort>Tipo</th><th data-sort>Recebimento</th><th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbodyDigitacao"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ═══ SEÇÃO 3: ARQUIVAMENTO ═══ -->
+    <section class="srbh-secao" id="secArquivamento">
+      <div class="srbh-card">
+        <h2>Arquivamento de Boletins</h2>
+        <div class="srbh-filtros">
+          <div class="srbh-form-group">
+            <label>Roteiro</label>
+            <select class="srbh-select" id="filtroRotArq"></select>
+          </div>
+          <div class="srbh-form-group">
+            <label>Tipo de Estação</label>
+            <select class="srbh-select" id="filtroTipoEstArq">
+              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+            </select>
+          </div>
+          <div class="srbh-form-group">
+            <label>Mês Obs.</label>
+            <input type="text" class="srbh-input" id="filtroMesArq" placeholder="MM/AAAA" maxlength="7" />
+          </div>
+          <button class="srbh-btn btn-primary btn-small" onclick="filtrarArquivamento()">Filtrar</button>
+        </div>
+        <div style="margin-bottom:12px;">
+          <button class="srbh-btn btn-primary btn-small" onclick="marcarArquivadoBloco()">⏳ Solicitar Arquivamento em Bloco</button>
+        </div>
+        <div class="srbh-table-wrapper">
+          <table class="srbh-table" id="tabelaArquivamento">
+            <thead><tr>
+              <th><input type="checkbox" id="checkAllArq" /></th>
+              <th data-sort>Código</th><th data-sort>Estação</th><th data-sort>Mês Obs.</th>
+              <th data-sort>Tipo</th><th>Anotações</th><th>Status</th><th>Ações</th>
+            </tr></thead>
+            <tbody id="tbodyArquivamento"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- MODAL IMAGEM -->
+  <div class="srbh-modal" id="modalImagem">
+    <div class="srbh-modal-content">
+      <div class="modal-header">
+        <h2 id="modalImagemTitulo">Imagem do Boletim</h2>
+        <button class="modal-close" onclick="fecharModal('modalImagem')">×</button>
+      </div>
+      <div class="preview-area" style="max-height:70vh;" id="modalImagemArea">
+        <div class="preview-placeholder">Selecione um boletim para visualizar</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <!-- FOOTER CENTRALIZADO -->
+  <srbh-footer></srbh-footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/utils.js?v=2"></script>
+  <script src="js/alimentador.js"></script>
+</body>
+</html>

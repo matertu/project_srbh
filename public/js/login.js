@@ -54,7 +54,7 @@ if (formLogin) {
         } else if (tipoFunc === "supervisor") {
           window.location.href = "dashboard_supervisor.html";
         } else if (tipoFunc === "digitador" || tipoFunc === "alimentador") {
-          window.location.href = "dashboard_digitador.html";
+          window.location.href = "dashboard_alimentador.html";
         } else {
           console.warn("Tipo de usuário não reconhecido:", tipoFunc);
           window.location.href = "dashboard.html"; // fallback de segurança

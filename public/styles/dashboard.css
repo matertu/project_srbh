@@ -171,3 +171,44 @@ footer {
     font-size: 16px;
   }
 }
+
+/* USER BAR */
+.user-bar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 18px;
+}
+.user-info { font-size: 14px; color: #0b3d5c; font-weight: bold; }
+.user-info em { font-style: normal; color: #1b6ca8; }
+.btn-logout {
+  padding: 7px 18px;
+  border: 2px solid #a32d2d;
+  border-radius: 8px;
+  background: transparent;
+  color: #a32d2d;
+  font-size: 13px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-logout:hover { background: #fef2f2; }
+
+/* BOTÕES DE AÇÃO NOS CARDS */
+.btn-card-acao {
+  display: block;
+  width: 100%;
+  margin-top: 14px;
+  padding: 10px 0;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+.btn-enviar { background: #dbeafe; color: #1e40af; }
+.btn-enviar:hover { background: #bfdbfe; }
+.btn-anotar { background: #fef3c7; color: #92400e; }
+.btn-anotar:hover { background: #fde68a; }

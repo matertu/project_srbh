@@ -16,6 +16,7 @@
 
     <!-- MAIN -->
     <main>
+      <div class="user-bar" id="userBar"></div>
       <h1 class="page-title">Entrada de Dados do Boletim</h1>
       <p class="subtitle">Preencha os 124 campos abaixo para registrar os dados diários do boletim (31 dias × 4 variáveis).</p>
 
@@ -45,20 +46,18 @@
           </div>
         </div>
 
-        <!-- TABELA 31x4 -->
-        <div class="table-wrapper">
-          <table class="dados-table" id="tabelaDados">
-            <thead>
-              <tr>
-                <th>Dia</th>
-                <th>7h</th>
-                <th>Correção</th>
-                <th>17h</th>
-                <th>Correção</th>
-              </tr>
-            </thead>
-            <tbody id="corpoTabela"></tbody>
-          </table>
+        <!-- UPLOAD DE IMAGEM PNG -->
+        <div class="upload-area" id="uploadArea">
+          <input type="file" id="inputImagem" accept="image/png,image/jpeg,image/jpg" hidden />
+          <div class="upload-placeholder" id="uploadPlaceholder" onclick="document.getElementById('inputImagem').click()">
+            <div class="upload-icon">🖼️</div>
+            <p class="upload-titulo">Clique para selecionar a imagem do boletim</p>
+            <p class="upload-sub">PNG, JPG · Arraste e solte aqui</p>
+          </div>
+          <div class="upload-preview" id="uploadPreview" style="display:none;">
+            <img id="previewImg" src="" alt="Preview do boletim" />
+            <button class="btn-remover-img" onclick="removerImagem()">✕ Remover imagem</button>
+          </div>
         </div>
 
         <div class="actions">
@@ -88,6 +87,8 @@
         2. boletimAPI.js   — funções de acesso ao Supabase
         3. boletim-form.js — lógica do formulário
     -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="js/main.js"></script>
     <script src="js/Boletim.js"></script>
     <script src="js/boletimAPI.js"></script>
     <script src="js/boletim-form.js"></script>

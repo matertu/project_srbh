@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -8,6 +9,7 @@
   <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
   <script src="js/components.js"></script>
 </head>
+
 <body>
 
   <!-- HEADER CENTRALIZADO -->
@@ -27,12 +29,30 @@
     <!-- ═══ SEÇÃO 1: DASHBOARD ═══ -->
     <section class="srbh-secao ativa" id="secDashboard">
       <div class="kpi-grid" id="kpiGridSup">
-        <div class="kpi-card"><div class="kpi-valor" id="kR">0</div><div class="kpi-label">Recebidos</div></div>
-        <div class="kpi-card info"><div class="kpi-valor" id="kD">0</div><div class="kpi-label">Digitados</div></div>
-        <div class="kpi-card sucesso"><div class="kpi-valor" id="kAN">0</div><div class="kpi-label">Analisados</div></div>
-        <div class="kpi-card ouro"><div class="kpi-valor" id="kE">0</div><div class="kpi-label">Enviados</div></div>
-        <div class="kpi-card"><div class="kpi-valor" id="kTot">0</div><div class="kpi-label">Total</div></div>
-        <div class="kpi-card alerta"><div class="kpi-valor" id="kAtraso">0</div><div class="kpi-label">Em atraso (>60d)</div></div>
+        <div class="kpi-card">
+          <div class="kpi-valor" id="kR">0</div>
+          <div class="kpi-label">Recebidos</div>
+        </div>
+        <div class="kpi-card info">
+          <div class="kpi-valor" id="kD">0</div>
+          <div class="kpi-label">Digitados</div>
+        </div>
+        <div class="kpi-card sucesso">
+          <div class="kpi-valor" id="kAN">0</div>
+          <div class="kpi-label">Analisados</div>
+        </div>
+        <div class="kpi-card ouro">
+          <div class="kpi-valor" id="kE">0</div>
+          <div class="kpi-label">Enviados</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-valor" id="kTot">0</div>
+          <div class="kpi-label">Total</div>
+        </div>
+        <div class="kpi-card alerta">
+          <div class="kpi-valor" id="kAtraso">0</div>
+          <div class="kpi-label">Em atraso (>60d)</div>
+        </div>
       </div>
 
       <div class="chart-container">
@@ -41,16 +61,24 @@
 
       <!-- Filtros -->
       <div class="srbh-filtros">
-        <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="filtroDashRot"></select></div>
+        <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="filtroDashRot"></select>
+        </div>
         <div class="srbh-form-group"><label>Tipo de Estação</label>
           <select class="srbh-select" id="filtroDashTipoEst">
-            <option value="">Todos</option><option value="P">P (Pluviométrica)</option><option value="F">F (Fluviométrica)</option><option value="PT">PT</option>
+            <option value="">Todos</option>
+            <option value="P">P (Pluviométrica)</option>
+            <option value="F">F (Fluviométrica)</option>
+            <option value="PT">PT</option>
           </select>
         </div>
         <div class="srbh-form-group"><label>Status</label>
           <select class="srbh-select" id="filtroDashStatus">
-            <option value="">Todos</option><option value="R">Recebido</option><option value="D">Digitado</option>
-            <option value="AN">Analisado</option><option value="E">Enviado</option><option value="A">Arquivado</option>
+            <option value="">Todos</option>
+            <option value="R">Recebido</option>
+            <option value="D">Digitado</option>
+            <option value="AN">Analisado</option>
+            <option value="E">Enviado</option>
+            <option value="A">Arquivado</option>
           </select>
         </div>
         <button class="srbh-btn btn-primary btn-small" onclick="carregarTabelaDash() ">Filtrar</button>
@@ -60,11 +88,18 @@
         <h2>Todos os Boletins</h2>
         <div class="srbh-table-wrapper">
           <table class="srbh-table" id="tabelaDash">
-            <thead><tr>
-              <th data-sort>Estação</th><th data-sort>Tipo</th><th data-sort>Roteiro</th>
-              <th data-sort>Alimentador</th><th data-sort>Recebimento</th>
-              <th data-sort>Status</th><th data-sort>Dias</th><th>Alerta</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th data-sort>Estação</th>
+                <th data-sort>Tipo</th>
+                <th data-sort>Roteiro</th>
+                <th data-sort>Alimentador</th>
+                <th data-sort>Recebimento</th>
+                <th data-sort>Status</th>
+                <th data-sort>Dias</th>
+                <th>Alerta</th>
+              </tr>
+            </thead>
             <tbody id="tbodyDash"></tbody>
           </table>
         </div>
@@ -75,7 +110,7 @@
     <section class="srbh-secao" id="secFechamento">
       <div class="srbh-card">
         <h2>Fechamento Mensal</h2>
-        <button class="srbh-btn btn-primary" onclick="iniciarFechamento()">📋 Iniciar Fechamento Mensal</button>
+        <button class="srbh-btn btn-primary" onclick="iniciarFechamento()"></button>Iniciar Fechamento Mensal</button>
       </div>
 
       <div class="srbh-card" id="wizardCard" style="display:none;">
@@ -83,7 +118,7 @@
         <div class="srbh-filtros" style="margin-bottom:16px;">
           <div class="srbh-form-group">
             <label>Mês de Referência</label>
-            <input type="month" class="srbh-input" id="filtroFechamentoMes" />
+            <input type="text" class="srbh-input" id="filtroFechamentoMes" placeholder="MM/AAAA" maxlength="7" />
           </div>
           <div class="srbh-form-group">
             <label>Roteiro</label>
@@ -92,34 +127,44 @@
           <div class="srbh-form-group">
             <label>Tipo de Estação</label>
             <select class="srbh-select" id="filtroFechamentoTipoEst">
-              <option value="">Todos</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+              <option value="">Todos</option>
+              <option value="P">P</option>
+              <option value="F">F</option>
+              <option value="PT">PT</option>
             </select>
           </div>
           <button class="srbh-btn btn-primary btn-small" onclick="carregarListaFechamento()">Filtrar</button>
         </div>
 
         <div class="srbh-form-group" style="margin-bottom:20px;">
-          <label>Anexar banco .mdb conferido (Opcional - Plus)</label>
+          <label>Anexar banco .mdb</label>
           <div class="upload-area" onclick="document.getElementById('mdbInput').click()">
             <span class="upload-icon">📁</span>
             <span class="upload-text">Clique para selecionar o arquivo .mdb</span>
           </div>
-          <input type="file" id="mdbInput" accept=".mdb" style="display:none;" onchange="document.getElementById('mdbName').textContent = this.files[0] ? 'Arquivo: ' + this.files[0].name : ''" />
+          <input type="file" id="mdbInput" accept=".mdb" style="display:none;"
+            onchange="document.getElementById('mdbName').textContent = this.files[0] ? 'Arquivo: ' + this.files[0].name : ''" />
           <div id="mdbName" style="margin-top:8px;font-size:0.9rem;color:#6b7280;font-weight:bold;"></div>
         </div>
 
         <div class="srbh-table-wrapper" style="margin-bottom:16px;">
           <table class="srbh-table" id="tabelaFechamentoLista">
-            <thead><tr>
-              <th class="center"><input type="checkbox" id="checkAllFechamento" /></th>
-              <th>Estação</th><th>Mês</th><th>Roteiro</th><th>Status</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th class="center"><input type="checkbox" id="checkAllFechamento" /></th>
+                <th>Estação</th>
+                <th>Mês</th>
+                <th>Roteiro</th>
+                <th>Status</th>
+              </tr>
+            </thead>
             <tbody id="tbodyFechamentoLista"></tbody>
           </table>
         </div>
 
         <div id="areaJustificativa" style="display:none; margin-bottom:16px;">
-          <div class="bloqueio-msg">⚠ Seleção contém boletins atrasados (>60 dias). Justificativa obrigatória antes do fechamento.</div>
+          <div class="bloqueio-msg">⚠ Seleção contém boletins atrasados (>60 dias). Justificativa obrigatória antes do
+            fechamento.</div>
           <div class="srbh-form-group"><label>Tipo de Justificativa</label>
             <select class="srbh-select" id="tipoJust">
               <option value="">Selecione...</option>
@@ -128,10 +173,12 @@
               <option value="Outros">Outros</option>
             </select>
           </div>
-          <div class="srbh-form-group"><label>Observação</label><textarea class="srbh-textarea" id="obsJust"></textarea></div>
+          <div class="srbh-form-group"><label>Observação</label><textarea class="srbh-textarea" id="obsJust"></textarea>
+          </div>
         </div>
 
-        <button class="srbh-btn btn-success" id="btnGerarZip" onclick="confirmarFechamento()">✔ Confirmar Fechamento e Baixar ZIP</button>
+        <button class="srbh-btn btn-success" id="btnGerarZip" onclick="confirmarFechamento()">✔ Confirmar Fechamento e
+          Baixar ZIP</button>
       </div>
 
       <!-- Histórico de fechamentos -->
@@ -139,8 +186,19 @@
         <h2>Histórico de Fechamentos</h2>
         <div class="srbh-table-wrapper">
           <table class="srbh-table" id="tabelaFechamentos">
-            <thead><tr><th>Mês</th><th>Data Envio</th><th>Qtd. Boletins</th><th>Status</th></tr></thead>
-            <tbody id="tbodyFechamentos"><tr><td colspan="4" class="srbh-vazio">Nenhum fechamento registrado.</td></tr></tbody>
+            <thead>
+              <tr>
+                <th>Mês</th>
+                <th>Data Envio</th>
+                <th>Qtd. Boletins</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbodyFechamentos">
+              <tr>
+                <td colspan="4" class="srbh-vazio">Nenhum fechamento registrado.</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -153,7 +211,15 @@
         <button class="srbh-btn btn-secondary btn-small" onclick="exportarRelProdutividade()">📥 Exportar CSV</button>
         <div class="srbh-table-wrapper" style="margin-top:12px;">
           <table class="srbh-table" id="tabelaProdutividade">
-            <thead><tr><th data-sort>Nome</th><th data-sort>Função</th><th data-sort>Recebidos</th><th data-sort>Digitados</th><th data-sort>Analisados</th></tr></thead>
+            <thead>
+              <tr>
+                <th data-sort>Nome</th>
+                <th data-sort>Função</th>
+                <th data-sort>Recebidos</th>
+                <th data-sort>Digitados</th>
+                <th data-sort>Analisados</th>
+              </tr>
+            </thead>
             <tbody id="tbodyProdutividade"></tbody>
           </table>
         </div>
@@ -169,8 +235,10 @@
       <!-- Sub-tabs de cadastro -->
       <div style="display:flex;gap:8px;margin-bottom:16px;">
         <button id="btnCadUsuarios" class="srbh-btn btn-primary" onclick="mostrarCadastro('usuarios')">Usuários</button>
-        <button id="btnCadEstacoes" class="srbh-btn btn-secondary" onclick="mostrarCadastro('estacoes')">Estações</button>
-        <button id="btnCadRoteiros" class="srbh-btn btn-secondary" onclick="mostrarCadastro('roteiros')">Roteiros</button>
+        <button id="btnCadEstacoes" class="srbh-btn btn-secondary"
+          onclick="mostrarCadastro('estacoes')">Estações</button>
+        <button id="btnCadRoteiros" class="srbh-btn btn-secondary"
+          onclick="mostrarCadastro('roteiros')">Roteiros</button>
       </div>
 
       <!-- Cadastro Usuários -->
@@ -178,13 +246,18 @@
         <h2>Cadastro de Usuários</h2>
         <form id="formUsuario" style="margin-bottom:20px;">
           <div class="srbh-form-row">
-            <div class="srbh-form-group"><label>Nome</label><input type="text" class="srbh-input" id="cadNome" required /></div>
-            <div class="srbh-form-group"><label>Login</label><input type="text" class="srbh-input" id="cadLogin" required /></div>
-            <div class="srbh-form-group"><label>Senha</label><input type="text" class="srbh-input" id="cadSenha" required /></div>
+            <div class="srbh-form-group"><label>Nome</label><input type="text" class="srbh-input" id="cadNome"
+                required /></div>
+            <div class="srbh-form-group"><label>Login</label><input type="text" class="srbh-input" id="cadLogin"
+                required /></div>
+            <div class="srbh-form-group"><label>Senha</label><input type="text" class="srbh-input" id="cadSenha"
+                required /></div>
             <div class="srbh-form-group"><label>Tipo</label>
               <select class="srbh-select" id="cadTipo" required>
-                <option value="">Selecione...</option><option value="alimentador">Alimentador</option>
-                <option value="técnico">Técnico</option><option value="supervisor">Supervisor</option>
+                <option value="">Selecione...</option>
+                <option value="alimentador">Alimentador</option>
+                <option value="técnico">Técnico</option>
+                <option value="supervisor">Supervisor</option>
                 <option value="digitador">Digitador</option>
               </select>
             </div>
@@ -192,7 +265,15 @@
           <button type="submit" class="srbh-btn btn-primary">💾 Cadastrar Usuário</button>
         </form>
         <div class="srbh-table-wrapper">
-          <table class="srbh-table"><thead><tr><th>ID</th><th>Nome</th><th>Login</th><th>Tipo</th></tr></thead>
+          <table class="srbh-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>Login</th>
+                <th>Tipo</th>
+              </tr>
+            </thead>
             <tbody id="tbodyUsuarios"></tbody>
           </table>
         </div>
@@ -203,19 +284,34 @@
         <h2>Cadastro de Estações</h2>
         <form id="formEstacao" style="margin-bottom:20px;">
           <div class="srbh-form-row">
-            <div class="srbh-form-group"><label>Código ANA (8 dígitos)</label><input type="text" class="srbh-input" id="cadCodAna" maxlength="8" required /></div>
-            <div class="srbh-form-group"><label>Nome</label><input type="text" class="srbh-input" id="cadNomeEst" required /></div>
-            <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="cadRoteiroEst" required></select></div>
+            <div class="srbh-form-group"><label>Código ANA (8 dígitos)</label><input type="text" class="srbh-input"
+                id="cadCodAna" maxlength="8" required /></div>
+            <div class="srbh-form-group"><label>Nome</label><input type="text" class="srbh-input" id="cadNomeEst"
+                required /></div>
+            <div class="srbh-form-group"><label>Roteiro</label><select class="srbh-select" id="cadRoteiroEst"
+                required></select></div>
             <div class="srbh-form-group"><label>Tipo</label>
               <select class="srbh-select" id="cadTipoEst" required>
-                <option value="">Selecione...</option><option value="P">P</option><option value="F">F</option><option value="PT">PT</option>
+                <option value="">Selecione...</option>
+                <option value="P">P</option>
+                <option value="F">F</option>
+                <option value="PT">PT</option>
               </select>
             </div>
           </div>
           <button type="submit" class="srbh-btn btn-primary">💾 Cadastrar Estação</button>
         </form>
         <div class="srbh-table-wrapper">
-          <table class="srbh-table"><thead><tr><th>ID</th><th>Código ANA</th><th>Nome</th><th>Tipo</th><th>Roteiro</th></tr></thead>
+          <table class="srbh-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Código ANA</th>
+                <th>Nome</th>
+                <th>Tipo</th>
+                <th>Roteiro</th>
+              </tr>
+            </thead>
             <tbody id="tbodyEstacoes"></tbody>
           </table>
         </div>
@@ -226,24 +322,52 @@
         <h2>Cadastro de Roteiros</h2>
         <form id="formRoteiro" style="margin-bottom:20px;">
           <div class="srbh-form-row">
-            <div class="srbh-form-group"><label>Nome do Roteiro</label><input type="text" class="srbh-input" id="cadNomeRot" required /></div>
+            <div class="srbh-form-group"><label>Nome do Roteiro</label><input type="text" class="srbh-input"
+                id="cadNomeRot" required /></div>
             <div class="srbh-form-group"><label>UF</label>
               <select class="srbh-select" id="cadUfRot" required>
                 <option value="">Selecione...</option>
-                <option value="ac">AC</option><option value="al">AL</option><option value="am">AM</option><option value="ap">AP</option>
-                <option value="ba">BA</option><option value="ce">CE</option><option value="df">DF</option><option value="es">ES</option>
-                <option value="go">GO</option><option value="ma">MA</option><option value="mg">MG</option><option value="ms">MS</option>
-                <option value="mt">MT</option><option value="pa">PA</option><option value="pb">PB</option><option value="pe">PE</option>
-                <option value="pi">PI</option><option value="pr">PR</option><option value="rj">RJ</option><option value="rn">RN</option>
-                <option value="ro">RO</option><option value="rr">RR</option><option value="rs">RS</option><option value="sc">SC</option>
-                <option value="se">SE</option><option value="sp">SP</option><option value="to">TO</option>
+                <option value="ac">AC</option>
+                <option value="al">AL</option>
+                <option value="am">AM</option>
+                <option value="ap">AP</option>
+                <option value="ba">BA</option>
+                <option value="ce">CE</option>
+                <option value="df">DF</option>
+                <option value="es">ES</option>
+                <option value="go">GO</option>
+                <option value="ma">MA</option>
+                <option value="mg">MG</option>
+                <option value="ms">MS</option>
+                <option value="mt">MT</option>
+                <option value="pa">PA</option>
+                <option value="pb">PB</option>
+                <option value="pe">PE</option>
+                <option value="pi">PI</option>
+                <option value="pr">PR</option>
+                <option value="rj">RJ</option>
+                <option value="rn">RN</option>
+                <option value="ro">RO</option>
+                <option value="rr">RR</option>
+                <option value="rs">RS</option>
+                <option value="sc">SC</option>
+                <option value="se">SE</option>
+                <option value="sp">SP</option>
+                <option value="to">TO</option>
               </select>
             </div>
           </div>
           <button type="submit" class="srbh-btn btn-primary">💾 Cadastrar Roteiro</button>
         </form>
         <div class="srbh-table-wrapper">
-          <table class="srbh-table"><thead><tr><th>ID</th><th>Nome</th><th>UF</th></tr></thead>
+          <table class="srbh-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nome</th>
+                <th>UF</th>
+              </tr>
+            </thead>
             <tbody id="tbodyRoteiros"></tbody>
           </table>
         </div>
@@ -256,11 +380,16 @@
         <h2>Aprovações de Arquivamento Pendentes</h2>
         <div class="srbh-table-wrapper">
           <table class="srbh-table" id="tabelaAprovacoes">
-            <thead><tr>
-              <th class="center"><input type="checkbox" id="checkAllAprov" /></th>
-              <th>Estação</th><th>Mês</th><th>Status Atual</th><th>Solicitante</th>
-              <th>Ações</th>
-            </tr></thead>
+            <thead>
+              <tr>
+                <th class="center"><input type="checkbox" id="checkAllAprov" /></th>
+                <th>Estação</th>
+                <th>Mês</th>
+                <th>Status Atual</th>
+                <th>Solicitante</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
             <tbody id="tbodyAprovacoes"></tbody>
           </table>
         </div>
@@ -277,9 +406,11 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+  <script src="js/config.js"></script>
   <script src="js/data.js"></script>
-  <script src="js/utils.js"></script>
-  <script src="js/charts.js"></script>
-  <script src="js/supervisor.js"></script>
+  <script src="js/utils.js?v=3"></script>
+  <script src="js/charts.js?v=3"></script>
+  <script src="js/supervisor.js?v=3"></script>
 </body>
+
 </html>

@@ -1,13 +1,4 @@
-// ── Configurações do Supabase (reaproveitando credenciais de boletimAPI.js) ──
-const SUPABASE_URL = "https://ytrowyxkuemlqmiyfvll.supabase.co/rest/v1";
-const SUPABASE_ANON_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI";
 
-const headers = {
-  "Content-Type": "application/json",
-  apikey: SUPABASE_ANON_KEY,
-  Authorization: `Bearer ${SUPABASE_ANON_KEY}`,
-};
 
 // ── Captura do formulário de login ──
 const formLogin = document.querySelector("form");
@@ -33,19 +24,9 @@ if (formLogin) {
     loginBtn.disabled = true;
 
     try {
-      // Verificação no Banco do Supabase
-      const url = `${SUPABASE_URL}/funcionarios?login_func=eq.${encodeURIComponent(loginValue)}&senha_func=eq.${encodeURIComponent(senhaValue)}&limit=1`;
-
-      const response = await fetch(url, {
-        method: "GET",
-        headers: headers,
-      });
-
-      if (!response.ok) {
-        throw new Error("Erro de conexão com o banco de dados.");
-      }
-
-      const dados = await response.json();
+      // Verificação no Banco do Supabase via data.js
+      const endpoint = `funcionarios?login_func=eq.${encodeURIComponent(loginValue)}&senha_func=eq.${encodeURIComponent(senhaValue)}&limit=1`;
+      const dados = await _req("GET", endpoint);
 
       if (dados && dados.length > 0) {
         const funcionario = dados[0];
@@ -72,10 +53,8 @@ if (formLogin) {
           window.location.href = "dashboard_tecnico.html";
         } else if (tipoFunc === "supervisor") {
           window.location.href = "dashboard_supervisor.html";
-        } else if (tipoFunc === "digitador") {
-          window.location.href = "dashboard_alimentador.html";
-        } else if (tipoFunc === "alimentador") {
-          window.location.href = "dashboard_alimentador.html";
+        } else if (tipoFunc === "digitador" || tipoFunc === "alimentador") {
+          window.location.href = "dashboard_digitador.html";
         } else {
           console.warn("Tipo de usuário não reconhecido:", tipoFunc);
           window.location.href = "dashboard.html"; // fallback de segurança

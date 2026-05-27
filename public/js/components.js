@@ -4,7 +4,7 @@ class SrbhHeader extends HTMLElement {
     let nome = "---";
     let tipo = "Usuário";
     try {
-      const usuarioStr = localStorage.getItem("srbh_usuario");
+      const usuarioStr = localStorage.getItem("usuario_logado");
       if (usuarioStr) {
         const usuario = JSON.parse(usuarioStr);
         if (usuario.nome) nome = usuario.nome;

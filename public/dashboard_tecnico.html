@@ -76,7 +76,7 @@
           </div>
           <div class="srbh-form-group">
             <label>Mês Obs.</label>
-            <input type="month" class="srbh-input" id="filtroMesArq" />
+            <input type="text" class="srbh-input" id="filtroMesArq" placeholder="MM/AAAA" maxlength="7" />
           </div>
           <button class="srbh-btn btn-primary btn-small" onclick="filtrarArquivamento()">Filtrar</button>
         </div>
@@ -112,16 +112,18 @@
           <div id="painelPergunta">
             <p style="font-size:16px;font-weight:600;color:#0b3d5c;margin-bottom:16px;">Este boletim possui anotações?</p>
             <div style="display:flex;gap:12px;">
-              <button class="srbh-btn btn-warning" onclick="mostrarFormAnotacao()">Sim</button>
-              <button class="srbh-btn btn-success" onclick="confirmarAnalise()">Não — Confirmar Análise</button>
+              <button class="srbh-btn btn-secondary" onclick="toggleAnotacao(true)" style="flex:1;">Sim</button>
+              <button class="srbh-btn btn-secondary" onclick="toggleAnotacao(false)" style="flex:1;">Não</button>
             </div>
           </div>
-          <div id="painelAnotacao" style="display:none;">
+          
+          <div id="painelAnotacao" style="display:none; margin-top:16px;">
             <h3>Registrar Anotações</h3>
             <div id="listaAnotacoes"></div>
             <button class="srbh-btn btn-secondary btn-small" onclick="addLinhaAnotacao()" style="margin:8px 0 16px;">＋ Adicionar Anotação</button>
-            <button class="srbh-btn btn-success" onclick="salvarAnotacoesEAnalisar()">💾 Salvar Anotações e Marcar como Analisado</button>
           </div>
+          
+          <button class="srbh-btn btn-success" id="btnConfirmarAnalise" style="margin-top:16px; width:100%; display:none;" onclick="salvarAnotacoesEAnalisar()">Confirmar Análise</button>
         </div>
       </div>
     </div>
@@ -141,6 +143,7 @@
   <!-- FOOTER CENTRALIZADO -->
   <srbh-footer></srbh-footer>
 
+  <script src="js/config.js"></script>
   <script src="js/data.js"></script>
   <script src="js/utils.js"></script>
   <script src="js/tecnico.js"></script>

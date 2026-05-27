@@ -7,10 +7,7 @@ let allBoletins = [];
 
 // ── Init ─────────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
-  usuario = verificarLogin(["supervisor"]);
-  if (!usuario) return;
-  document.getElementById("userNome").textContent = usuario.nome;
-
+  // Configuração das abas (Mover para o topo para garantir que funcionem sempre)
   const secMap = {
     dashboard: "secDashboard",
     fechamento: "secFechamento",
@@ -34,48 +31,60 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  // Roteiro dropdown
-  const roteiros = await Roteiros.listar();
-  popularSelect(
-    document.getElementById("filtroDashRot"),
-    roteiros,
-    "id_roteiro",
-    "nome_roteiro",
-    "Todos",
-  );
-  popularSelect(
-    document.getElementById("cadRoteiroEst"),
-    roteiros,
-    "id_roteiro",
-    "nome_roteiro",
-    "Selecione...",
-  );
+  // Verificação de login e carga de dados base
+  usuario = verificarLogin(["supervisor"]);
+  if (!usuario) return;
 
-  // Máscara
-  const codAnaInput = document.getElementById("cadCodAna");
-  if (codAnaInput) mascaraCodAna(codAnaInput);
+  try {
+    // Máscaras (Inicializadas antes de requisições de rede)
+    const codAnaInput = document.getElementById("cadCodAna");
+    if (codAnaInput) mascaraCodAna(codAnaInput);
 
-  // Forms
-  document
-    .getElementById("formUsuario")
-    .addEventListener("submit", cadastrarUsuario);
-  document
-    .getElementById("formEstacao")
-    .addEventListener("submit", cadastrarEstacao);
-  document
-    .getElementById("formRoteiro")
-    .addEventListener("submit", cadastrarRoteiro);
+    const mesFechamentoInput = document.getElementById("filtroFechamentoMes");
+    if (mesFechamentoInput) mascaraMesAno(mesFechamentoInput);
 
-  configurarSelecionarTodos("checkAllFechamento", "cb-fechamento");
-  configurarSelecionarTodos("checkAllAprov", "cb-aprov");
+    // Roteiro dropdown
+    const roteiros = await Roteiros.listar();
+    popularSelect(
+      document.getElementById("filtroDashRot"),
+      roteiros,
+      "id_roteiro",
+      "nome_roteiro",
+      "Todos",
+    );
+    popularSelect(
+      document.getElementById("cadRoteiroEst"),
+      roteiros,
+      "id_roteiro",
+      "nome_roteiro",
+      "Selecione...",
+    );
 
-  // Tabelas ordenáveis
-  tornarTabelaOrdenavel("tabelaDash");
-  tornarTabelaOrdenavel("tabelaProdutividade");
 
-  // Carregar dados
-  await carregarKPIs();
-  await carregarTabelaDash();
+    // Forms
+    document
+      .getElementById("formUsuario")
+      .addEventListener("submit", cadastrarUsuario);
+    document
+      .getElementById("formEstacao")
+      .addEventListener("submit", cadastrarEstacao);
+    document
+      .getElementById("formRoteiro")
+      .addEventListener("submit", cadastrarRoteiro);
+
+    configurarSelecionarTodos("checkAllFechamento", "cb-fechamento");
+    configurarSelecionarTodos("checkAllAprov", "cb-aprov");
+
+    // Tabelas ordenáveis
+    tornarTabelaOrdenavel("tabelaDash");
+    tornarTabelaOrdenavel("tabelaProdutividade");
+
+    // Carregar dados
+    await carregarKPIs();
+    await carregarTabelaDash();
+  } catch (err) {
+    console.error("Erro na inicialização do Supervisor:", err);
+  }
 });
 
 // ══════════════════════════════════════════════════════════════════════
@@ -102,11 +111,19 @@ async function carregarKPIs() {
     document.getElementById("kAtraso").textContent = atrasados.length;
 
     // Gráfico de barras
-    desenharGraficoBarras(
-      "chartBarras",
-      { R: c.R, D: c.D, AN: c.AN, A: c.A || 0, E: c.E },
-      "Boletins por Status",
-    );
+    const desenharChart = () => {
+      desenharGraficoBarras(
+        "chartBarras",
+        { R: c.R, D: c.D, AN: c.AN, A: c.A || 0, E: c.E },
+        "Boletins por Status",
+      );
+    };
+
+    if (document.readyState === "complete") {
+      desenharChart();
+    } else {
+      window.addEventListener("load", desenharChart);
+    }
   } catch (e) {
     console.error("Erro KPIs:", e);
   }
@@ -149,7 +166,7 @@ async function carregarTabelaDash() {
       .join("");
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="8" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="8" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -166,26 +183,27 @@ function iniciarFechamento() {
 async function carregarListaFechamento() {
   const tbody = document.getElementById("tbodyFechamentoLista");
   tbody.innerHTML = '<tr><td colspan="5" class="srbh-vazio">Carregando...</td></tr>';
-  
+
   try {
     // Lista apenas os boletins Analisados (prontos para envio)
-    let bols = await Boletins.listar("status_boletim=eq.AN"); 
-    
-    const mes = document.getElementById("filtroFechamentoMes").value;
+    let bols = await Boletins.listar("status_boletim=eq.AN");
+
+    let mes = document.getElementById("filtroFechamentoMes").value;
+    if (mes) mes = parseMesAno(mes);
     const rotId = document.getElementById("filtroFechamentoRot").value;
     const tipoEst = document.getElementById("filtroFechamentoTipoEst").value;
-    
+
     if (mes) bols = bols.filter(b => b.ano_mes_boletim?.startsWith(mes));
     if (rotId) bols = bols.filter(b => b.estacao?.id_roteiro == rotId);
     if (tipoEst) bols = bols.filter(b => b.estacao?.tipo_estacao === tipoEst);
-    
+
     boletinsFechamento = bols;
-    
+
     if (!bols.length) {
       tbody.innerHTML = '<tr><td colspan="5" class="srbh-vazio">Nenhum boletim analisado para os filtros selecionados.</td></tr>';
       return;
     }
-    
+
     tbody.innerHTML = bols.map(b => `<tr>
       <td class="center"><input type="checkbox" class="cb-fechamento" value="${b.id_boletim}" onchange="verificarAtrasosFechamento()" /></td>
       <td>${b.estacao?.nome_estacao || "—"}</td>
@@ -194,14 +212,14 @@ async function carregarListaFechamento() {
       <td>${badgeStatusHTML(b.status_boletim)}</td>
     </tr>`).join("");
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="5" class="srbh-vazio">Erro ao carregar.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
 function verificarAtrasosFechamento() {
   const idsChecked = [...document.querySelectorAll(".cb-fechamento:checked")].map(cb => parseInt(cb.value));
   const selected = boletinsFechamento.filter(b => idsChecked.includes(b.id_boletim));
-  
+
   const atrasados = selected.filter(b => diasEntre(b.data_recebimento_boletim) > 60);
   if (atrasados.length > 0) {
     document.getElementById("areaJustificativa").style.display = "block";
@@ -250,15 +268,33 @@ async function confirmarFechamento() {
       if (b.ficheiro_boletim && b.ficheiro_boletim !== "null") {
         const roteiroNome = b.estacao?.roteiro?.nome_roteiro || "Sem_Roteiro";
         const folder = zip.folder(roteiroNome);
-        
+
         try {
+          // Extrai o nome do arquivo da URL (ex: "bol_...jpg")
+          let nomeDoArquivo = b.ficheiro_boletim;
+          if (nomeDoArquivo.includes("/")) {
+            nomeDoArquivo = nomeDoArquivo.split("/").pop();
+          }
+
           const imgUrl = Storage.getPublicUrl(b.ficheiro_boletim);
           const response = await fetch(imgUrl);
           if (response.ok) {
-            const blob = await response.blob();
-            folder.file(b.ficheiro_boletim, blob);
+            let blob = await response.blob();
+
+            // Se tiver anotações e for uma imagem (jpg/png), desenha do lado!
+            if (b.ficheiro_anotacao && b.ficheiro_anotacao.trim() !== "" && b.ficheiro_anotacao !== "null") {
+              const ext = nomeDoArquivo.split(".").pop().toLowerCase();
+              if (["jpg", "jpeg", "png", "webp"].includes(ext)) {
+                blob = await desenharAnotacoesNaImagem(blob, b.ficheiro_anotacao);
+              } else {
+                // Se não for imagem (ex: pdf), salva um .txt junto
+                folder.file(nomeDoArquivo.replace(`.${ext}`, "_anotacoes.txt"), b.ficheiro_anotacao);
+              }
+            }
+
+            folder.file(nomeDoArquivo, blob);
           }
-        } catch(err) {
+        } catch (err) {
           console.warn(`Erro ao baixar a imagem: ${b.ficheiro_boletim}`, err);
         }
       }
@@ -281,7 +317,7 @@ async function confirmarFechamento() {
     }
 
     mostrarToast(`Fechamento concluído! ${idsChecked.length} boletins exportados no ZIP.`, "sucesso");
-    
+
     // 6. Reseta a tela
     document.getElementById("wizardCard").style.display = "none";
     document.getElementById('mdbInput').value = "";
@@ -337,7 +373,7 @@ async function carregarRelatorios() {
     );
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="5" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="5" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -364,13 +400,13 @@ function mostrarCadastro(tipo) {
     tipo === "estacoes" ? "block" : "none";
   document.getElementById("cadRoteiros").style.display =
     tipo === "roteiros" ? "block" : "none";
-    
+
   // Alterar cor dos botões
-  document.getElementById("btnCadUsuarios").className = 
+  document.getElementById("btnCadUsuarios").className =
     tipo === "usuarios" ? "srbh-btn btn-primary" : "srbh-btn btn-secondary";
-  document.getElementById("btnCadEstacoes").className = 
+  document.getElementById("btnCadEstacoes").className =
     tipo === "estacoes" ? "srbh-btn btn-primary" : "srbh-btn btn-secondary";
-  document.getElementById("btnCadRoteiros").className = 
+  document.getElementById("btnCadRoteiros").className =
     tipo === "roteiros" ? "srbh-btn btn-primary" : "srbh-btn btn-secondary";
 
   // Carregar tabelas
@@ -392,7 +428,7 @@ async function carregarCadastroUsuarios() {
       )
       .join("");
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="4" class="srbh-vazio">Erro.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -437,7 +473,7 @@ async function carregarCadastroEstacoes() {
       )
       .join("");
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="4" class="srbh-vazio">Erro.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="4" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -476,7 +512,7 @@ async function carregarCadastroRoteiros() {
       )
       .join("");
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="3" class="srbh-vazio">Erro.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="3" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -535,7 +571,7 @@ async function carregarAprovacoes() {
       </td>
     </tr>`).join("");
   } catch (e) {
-    tbody.innerHTML = '<tr><td colspan="6" class="srbh-vazio">Erro ao carregar.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="6" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -593,4 +629,75 @@ async function rejeitarArquivamentoBloco() {
   } catch (e) {
     mostrarToast("Erro: " + e.message, "erro");
   }
+}
+// ── Função para Carimbar Anotações do lado da Imagem ────────────────
+async function desenharAnotacoesNaImagem(imgBlob, jsonStr) {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      const espacoAnotacao = 500; // Pixels extras na largura para o texto
+      canvas.width = img.width + espacoAnotacao;
+      canvas.height = Math.max(img.height, 600);
+
+      const ctx = canvas.getContext("2d");
+
+      // Fundo totalmente branco
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // Desenha a imagem original colada na esquerda
+      ctx.drawImage(img, 0, 0);
+
+      // Linha divisória
+      ctx.beginPath();
+      ctx.moveTo(img.width, 0);
+      ctx.lineTo(img.width, canvas.height);
+      ctx.strokeStyle = "#dddddd";
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Configura fonte e cor
+      ctx.fillStyle = "#0f172a";
+      ctx.font = "bold 26px Arial";
+      ctx.fillText("ANOTAÇÕES DO TÉCNICO", img.width + 30, 50);
+
+      let y = 100;
+      try {
+        const anotacoes = JSON.parse(jsonStr);
+        anotacoes.forEach(a => {
+          // Quebra de página se passar da altura
+          if (y > canvas.height - 100) return;
+
+          ctx.fillStyle = "#1e293b";
+          ctx.font = "bold 22px Arial";
+          ctx.fillText(`Dia ${a.dia}: Valor ${a.valor}`, img.width + 30, y);
+          y += 30;
+
+          ctx.fillStyle = "#475569";
+          ctx.font = "18px Arial";
+          // Quebra o texto da observação para não vazar a tela
+          const obsStr = a.obs || "Sem observação";
+          const maxLinha = 40;
+          const linhasObs = obsStr.match(new RegExp(`.{1,${maxLinha}}(\\s|$)|.{1,${maxLinha}}`, 'g')) || [obsStr];
+
+          linhasObs.forEach(linha => {
+            ctx.fillText(`Obs: ${linha.trim()}`, img.width + 30, y);
+            y += 24;
+          });
+
+          y += 20;
+        });
+      } catch (e) {
+        ctx.font = "16px Arial";
+        ctx.fillText("Erro ao ler anotações.", img.width + 30, y);
+      }
+
+      canvas.toBlob((novoBlob) => {
+        resolve(novoBlob);
+      }, imgBlob.type || "image/jpeg", 0.9);
+    };
+    img.onerror = () => resolve(imgBlob);
+    img.src = URL.createObjectURL(imgBlob);
+  });
 }

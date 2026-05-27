@@ -1,3 +1,6 @@
+// ── Estado reativo da tabela ───────────────────────────────────
+let estadoBoletim = Array.from({ length: 31 }, () => new Array(4).fill(0));
+
 // ── Monta a tabela 31x4 ao carregar a página ─────────────────
 const colunas = ["X1", "X1.1", "X2", "X2.2"];
 const corpo = document.getElementById("corpoTabela");
@@ -17,6 +20,12 @@ for (let dia = 1; dia <= 31; dia++) {
     input.id = `cell_${dia - 1}_${col}`;
     input.placeholder = "0";
     input.title = `Dia ${dia} — ${colunas[col]}`;
+    
+    // Atualiza o estado da memória sempre que o usuário digitar
+    input.addEventListener("input", (e) => {
+      estadoBoletim[dia - 1][col] = parseInt(e.target.value) || 0;
+    });
+
     td.appendChild(input);
     tr.appendChild(td);
   }
@@ -27,29 +36,36 @@ for (let dia = 1; dia <= 31; dia++) {
 // ── Gerar e salvar boletim ────────────────────────────────────
 async function gerarBoletim() {
   const nome = document.getElementById("nomeObs").value.trim() || "Sem nome";
-  const mes = parseInt(document.getElementById("metaMes").value) || 1;
-  const ano = parseInt(document.getElementById("metaAno").value) || 2026;
+  const mes = parseInt(document.getElementById("metaMes").value);
+  const ano = parseInt(document.getElementById("metaAno").value);
+  
+  if (isNaN(mes) || mes < 1 || mes > 12) {
+    alert("Mês inválido! Use um número de 1 a 12.");
+    return;
+  }
+  if (isNaN(ano) || ano < 1900 || ano > 2100) {
+    alert("Ano inválido!");
+    return;
+  }
+
   const estacao = parseInt(document.getElementById("metaEstacao").value) || 0;
   const func_ = parseInt(document.getElementById("metaFunc").value) || 0;
 
-  const boletim = new Boletim(nome, mes, ano);
-  boletim.setIdEstacao(estacao);
-  boletim.setIdFunc(func_);
-
-  for (let dia = 0; dia < 31; dia++) {
-    for (let col = 0; col < 4; col++) {
-      const val =
-        parseInt(document.getElementById(`cell_${dia}_${col}`).value) || 0;
-      boletim.setDadosBole(dia, col, val);
-    }
-  }
+  const boletimMock = {
+    nomeObs: nome,
+    mes: mes,
+    ano: ano,
+    idEstacao: estacao,
+    idFunc: func_,
+    recebido: false,
+    dadosBole: estadoBoletim
+  };
 
   // ── Monta payload com mês/ano dinâmicos ──────────────────────
   const hoje = new Date();
   const dataRecebimento = hoje.toISOString().split("T")[0];
-  const mesStr = String(boletim.getMes()).padStart(2, "0");
-  const anoStr = boletim.getAno();
-  const ficheiro = `boletim_${mesStr}_${anoStr}.pdf`;
+  const mesStr = String(mes).padStart(2, "0");
+  const ficheiro = `boletim_${mesStr}_${ano}.pdf`;
 
   // ── Feedback visual: botão travado enquanto salva ─────────────
   const btnSalvar = document.querySelector(".btn-primary");
@@ -58,34 +74,22 @@ async function gerarBoletim() {
   btnSalvar.disabled = true;
 
   try {
-    const payload = boletimParaPayload(boletim, ficheiro, dataRecebimento);
-    const salvo = await salvarBoletim(payload);
+    const payload = {
+      id_estacao: estacao,
+      id_func: func_ || null,
+      ano_mes_boletim: `${ano}-${mesStr}-01`,
+      status_boletim: "R",
+      ficheiro_boletim: ficheiro,
+      data_recebimento_boletim: dataRecebimento,
+    };
+    
+    const salvo = await Boletins.criar(payload);
 
-    boletim.printBoletim();
     console.log("Salvo no banco com ID:", salvo.id_boletim);
 
     // ── Monta exibição na tela ───────────────────────────────────
-    const dados = boletim.toJSON();
     let saida = `✔ Salvo no banco! id_boletim: ${salvo.id_boletim}\n\n`;
-    saida += `Boletim {\n`;
-    saida += `  nomeObs:   "${dados.nomeObs}"\n`;
-    saida += `  mes:       ${dados.mes}\n`;
-    saida += `  ano:       ${dados.ano}\n`;
-    saida += `  idEstacao: ${dados.idEstacao}\n`;
-    saida += `  idFunc:    ${dados.idFunc}\n`;
-    saida += `  recebido:  ${dados.recebido}\n\n`;
-    saida += `  dadosBole: [\n`;
-
-    const nomes = ["X1", "X1.1", "X2", "X2.2"];
-    saida += `    //  Dia  ${nomes.map((n) => n.padStart(6)).join("")}\n`;
-    for (let i = 0; i < 31; i++) {
-      const diaStr = `Dia ${String(i + 1).padStart(2)}`;
-      const vals = dados.dadosBole[i]
-        .map((v) => String(v).padStart(6))
-        .join("");
-      saida += `    [ ${diaStr}: ${vals} ]\n`;
-    }
-    saida += `  ]\n}`;
+    saida += JSON.stringify(boletimMock, null, 2);
 
     document.getElementById("outputBoletim").textContent = saida;
     document.getElementById("resultado").style.display = "block";
@@ -121,4 +125,7 @@ function limparTabela() {
     document.getElementById(id).value = "";
   });
   document.getElementById("resultado").style.display = "none";
+  
+  // Zera o estado reativo
+  estadoBoletim = Array.from({ length: 31 }, () => new Array(4).fill(0));
 }

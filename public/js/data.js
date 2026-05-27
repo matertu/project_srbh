@@ -3,15 +3,10 @@
 //  Camada de acesso ao banco de dados para todos os dashboards
 // ══════════════════════════════════════════════════════════════════════
 
-const API_URL = "https://ytrowyxkuemlqmiyfvll.supabase.co/rest/v1";
-const STORAGE_URL = "https://ytrowyxkuemlqmiyfvll.supabase.co/storage/v1";
-const API_KEY =
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI";
-
 const _headers = {
   "Content-Type": "application/json",
-  apikey: API_KEY,
-  Authorization: `Bearer ${API_KEY}`,
+  apikey: CONFIG.API_KEY,
+  Authorization: `Bearer ${CONFIG.API_KEY}`,
 };
 
 // ── Request genérico ─────────────────────────────────────────────────
@@ -21,7 +16,7 @@ async function _req(method, endpoint, body = null) {
   if (method === "PATCH") opts.headers["Prefer"] = "return=representation";
   if (body) opts.body = JSON.stringify(body);
 
-  const res = await fetch(`${API_URL}/${endpoint}`, opts);
+  const res = await fetch(`${CONFIG.API_URL}/${endpoint}`, opts);
   if (!res.ok) {
     const txt = await res.text();
     throw new Error(`Erro ${res.status}: ${txt}`);
@@ -150,6 +145,14 @@ const Boletins = {
     return _req("PATCH", `boletim?id_boletim=eq.${id}`, {
       status_boletim: novoStatus,
     });
+  },
+
+  atualizar(id, dados) {
+    return _req("PATCH", `boletim?id_boletim=eq.${id}`, dados);
+  },
+
+  deletar(id) {
+    return _req("DELETE", `boletim?id_boletim=eq.${id}`);
   },
 
   atualizarStatusEmBloco(ids, novoStatus) {
@@ -289,11 +292,11 @@ const Storage = {
     const ext = arquivo.name.split(".").pop().toLowerCase();
     const nomeCompleto = `${nomeArquivo}.${ext}`;
 
-    const res = await fetch(`${STORAGE_URL}/object/boletins/${nomeCompleto}`, {
+    const res = await fetch(`${CONFIG.STORAGE_URL}/object/boletins/${nomeCompleto}`, {
       method: "POST",
       headers: {
-        apikey: API_KEY,
-        Authorization: `Bearer ${API_KEY}`,
+        apikey: CONFIG.API_KEY,
+        Authorization: `Bearer ${CONFIG.API_KEY}`,
         "Content-Type": arquivo.type,
         "x-upsert": "true", // Substitui se já existir
       },
@@ -306,7 +309,7 @@ const Storage = {
     }
 
     // Retorna a URL pública
-    return `${STORAGE_URL}/object/public/boletins/${nomeCompleto}`;
+    return `${CONFIG.STORAGE_URL}/object/public/boletins/${nomeCompleto}`;
   },
 
   /**
@@ -314,7 +317,9 @@ const Storage = {
    * @param {string} nomeArquivo - Nome do ficheiro (ex: "bol_10100000_2026.05.jpg")
    */
   getPublicUrl(nomeArquivo) {
-    return `${STORAGE_URL}/object/public/boletins/${nomeArquivo}`;
+    if (!nomeArquivo) return "";
+    if (nomeArquivo.startsWith("http")) return nomeArquivo;
+    return `${CONFIG.STORAGE_URL}/object/public/boletins/${nomeArquivo}`;
   },
 
   /**

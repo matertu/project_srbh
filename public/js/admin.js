@@ -81,9 +81,6 @@ function renderizarFuncionarios(lista) {
   listaVazia.style.display = "none";
 
   lista.forEach((func) => {
-    const item = document.createElement("div");
-    item.className = "funcionario-item";
-
     const cargosExibicao = {
       tecnico: "Técnico",
       supervisor: "Supervisor",
@@ -92,15 +89,19 @@ function renderizarFuncionarios(lista) {
     };
     const cargoFormatado = cargosExibicao[func.tipo_func] || func.tipo_func;
 
-    item.innerHTML = `
-      <div class="funcionario-info">
-        <h3 title="${func.nome_func}">${func.nome_func}</h3>
-        <div class="info-row">
-          <strong>Login:</strong> <span>${func.login_func}</span>
-        </div>
-        <span class="tag-funcao ${func.tipo_func}">${cargoFormatado}</span>
-      </div>
-    `;
+    const titulo = criarElemento("h3", { title: func.nome_func }, func.nome_func);
+    
+    const infoLogin = criarElemento("div", { className: "info-row" }, [
+      criarElemento("strong", {}, "Login: "),
+      criarElemento("span", {}, func.login_func)
+    ]);
+    
+    const tagFuncao = criarElemento("span", { className: `tag-funcao ${func.tipo_func}` }, cargoFormatado);
+    
+    const infoContainer = criarElemento("div", { className: "funcionario-info" }, [titulo, infoLogin, tagFuncao]);
+    
+    const item = criarElemento("div", { className: "funcionario-item" }, infoContainer);
+    
     funcionariosList.appendChild(item);
   });
 }

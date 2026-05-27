@@ -2,11 +2,7 @@ let usuario = null;
 let boletimAnalisando = null;
 
 window.addEventListener("DOMContentLoaded", async () => {
-  usuario = verificarLogin(["tecnico", "técnico"]);
-  if (!usuario) return;
-  document.getElementById("userNome").textContent = usuario.nome;
-
-  // Tabs
+  // Tabs (moved to top so they always work)
   document.querySelectorAll(".srbh-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
       document
@@ -22,7 +18,14 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
-  const roteiros = await Roteiros.listar();
+  usuario = verificarLogin(["tecnico", "técnico"]);
+  if (!usuario) return;
+
+  try {
+    const mesArqInput = document.getElementById("filtroMesArq");
+    if (mesArqInput) mascaraMesAno(mesArqInput);
+
+    const roteiros = await Roteiros.listar();
   popularSelect(
     document.getElementById("selRoteiroAnalise"),
     roteiros,
@@ -48,6 +51,9 @@ window.addEventListener("DOMContentLoaded", async () => {
 
   await carregarKPIs();
   await carregarAnalise();
+  } catch (err) {
+    console.error("Erro na inicialização do Técnico:", err);
+  }
 });
 
 async function carregarKPIs() {
@@ -106,7 +112,7 @@ async function carregarAnalise() {
       .join("");
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="10" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="10" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -115,6 +121,7 @@ function abrirAnalise(id, ficheiroBoletim) {
   document.getElementById("painelPergunta").style.display = "block";
   document.getElementById("painelAnotacao").style.display = "none";
   document.getElementById("listaAnotacoes").innerHTML = "";
+  document.getElementById("btnConfirmarAnalise").style.display = "none";
 
   const areaImg = document.getElementById("modalImagemArea");
   if (
@@ -131,10 +138,17 @@ function abrirAnalise(id, ficheiroBoletim) {
   abrirModal("modalAnalise");
 }
 
-function mostrarFormAnotacao() {
-  document.getElementById("painelPergunta").style.display = "none";
-  document.getElementById("painelAnotacao").style.display = "block";
-  addLinhaAnotacao();
+function toggleAnotacao(temAnotacao) {
+  if (temAnotacao) {
+    document.getElementById("painelAnotacao").style.display = "block";
+    if (document.getElementById("listaAnotacoes").children.length === 0) {
+      addLinhaAnotacao();
+    }
+  } else {
+    document.getElementById("painelAnotacao").style.display = "none";
+    document.getElementById("listaAnotacoes").innerHTML = ""; // Limpa se tinha algo e ele mudou de ideia
+  }
+  document.getElementById("btnConfirmarAnalise").style.display = "block";
 }
 
 function addLinhaAnotacao() {
@@ -149,35 +163,40 @@ function addLinhaAnotacao() {
   document.getElementById("listaAnotacoes").appendChild(div);
 }
 
-async function confirmarAnalise() {
-  if (!boletimAnalisando) return;
-  try {
-    await Boletins.atualizarStatus(boletimAnalisando, "AN");
-    await Movimentacoes.criar({
-      id_boletim: boletimAnalisando,
-      id_func: usuario.id,
-      status_anterior: "D",
-      status_novo: "AN",
-    });
-    fecharModal("modalAnalise");
-    mostrarToast("Boletim analisado! Arquivo movido para pasta de produção.");
-    await carregarAnalise();
-    await carregarKPIs();
-  } catch (e) {
-    mostrarToast("Erro: " + e.message, "erro");
-  }
-}
+// confirmarAnalise foi removida e mesclada com salvarAnotacoesEAnalisar
 
 async function salvarAnotacoesEAnalisar() {
   if (!boletimAnalisando) return;
+  
+  // 1. Coleta os valores digitados nas linhas de anotação
+  const anotacoes = [];
+  const linhas = document.querySelectorAll("#listaAnotacoes .anotacao-row");
+  linhas.forEach((linha) => {
+    const dia = linha.querySelector(".anot-dia").value;
+    const valor = linha.querySelector(".anot-valor").value;
+    const obs = linha.querySelector(".anot-obs").value;
+    // Salva apenas se algo foi preenchido
+    if (dia || valor || obs) {
+      anotacoes.push({ dia, valor, obs });
+    }
+  });
+
+  const textoAnotacao = anotacoes.length ? JSON.stringify(anotacoes) : null;
+  const msgMov = anotacoes.length ? "Análise com anotações salvas em ficheiro_anotacao" : "Análise concluída";
+
   try {
-    await Boletins.atualizarStatus(boletimAnalisando, "AN");
+    // 2. Atualiza o status e a coluna ficheiro_anotacao no banco
+    await Boletins.atualizar(boletimAnalisando, {
+      status_boletim: "AN",
+      ficheiro_anotacao: textoAnotacao
+    });
+
     await Movimentacoes.criar({
       id_boletim: boletimAnalisando,
       id_func: usuario.id,
       status_anterior: "D",
       status_novo: "AN",
-      observacao_movimentacao: "Análise com anotações registradas",
+      observacao_movimentacao: msgMov,
     });
     fecharModal("modalAnalise");
     mostrarToast("Anotações salvas e boletim analisado!");
@@ -256,7 +275,8 @@ async function filtrarArquivamento() {
   try {
     let bols = await Boletins.listar("status_boletim=in.(AN,E)");
     const rotId = document.getElementById("filtroRotArq").value;
-    const mes = document.getElementById("filtroMesArq").value;
+    let mes = document.getElementById("filtroMesArq").value;
+    if (mes) mes = parseMesAno(mes);
     const tipoEst = document.getElementById("filtroTipoEstArq").value;
 
     if (rotId) bols = bols.filter((b) => b.estacao?.id_roteiro == rotId);
@@ -283,7 +303,7 @@ async function filtrarArquivamento() {
       .join("");
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="6" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="6" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 

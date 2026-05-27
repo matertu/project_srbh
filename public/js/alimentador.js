@@ -7,11 +7,7 @@ let duplicataEncontrada = null;
 
 // ── Init ─────────────────────────────────────────────────────────
 window.addEventListener("DOMContentLoaded", async () => {
-  usuario = verificarLogin(["alimentador", "digitador"]);
-  if (!usuario) return;
-  document.getElementById("userNome").textContent = usuario.nome;
-
-  // Tabs
+  // Tabs (moved to top so they always work)
   document.querySelectorAll(".srbh-tab").forEach((tab) => {
     tab.addEventListener("click", () => {
       document
@@ -27,9 +23,17 @@ window.addEventListener("DOMContentLoaded", async () => {
     });
   });
 
+  usuario = verificarLogin(["alimentador", "digitador"]);
+  if (!usuario) return;
+
+  try {
+
   // Máscaras
   mascaraCodAna(document.getElementById("codEstacao"));
-  mascaraMesAno(document.getElementById("mesObs"));
+  const mesObsInput = document.getElementById("mesObs");
+  if (mesObsInput) mascaraMesAno(mesObsInput);
+  const mesArqInput = document.getElementById("filtroMesArq");
+  if (mesArqInput) mascaraMesAno(mesArqInput);
 
   // Auto-preenchimento ao digitar código da estação
   document
@@ -111,6 +115,9 @@ window.addEventListener("DOMContentLoaded", async () => {
   await carregarKPIs();
   await carregarRecebidos();
   await carregarDigitacao();
+  } catch (err) {
+    console.error("Erro na inicialização do Alimentador:", err);
+  }
 });
 
 function capitalizar(str) {
@@ -133,7 +140,7 @@ async function carregarKPIs() {
 async function registrarRecebimento(e) {
   e.preventDefault();
   if (!estacaoSelecionada) {
-    alert("Código de estação inválido ou não encontrado.");
+    mostrarToast("Código de estação inválido ou não encontrado.", "erro");
     return;
   }
   const mesObsRaw = document.getElementById("mesObs").value;
@@ -141,15 +148,15 @@ async function registrarRecebimento(e) {
   const tipoReceb = document.getElementById("tipoReceb").value;
   const arquivo = document.getElementById("fileInput").files[0];
   if (!mesObs) {
-    alert("Mês de observação inválido (use MM/AAAA).");
+    mostrarToast("Mês de observação inválido (use um mês de 01 a 12).", "erro");
     return;
   }
   if (!tipoReceb) {
-    alert("Preencha todos os campos.");
+    mostrarToast("Preencha todos os campos.", "erro");
     return;
   }
   if (!arquivo) {
-    alert("Selecione o arquivo do boletim.");
+    mostrarToast("Selecione o arquivo do boletim.", "erro");
     return;
   }
 
@@ -178,9 +185,7 @@ async function salvarBoletim(mesObs, tipoReceb, arquivo) {
 
     // 1. Upload do arquivo para o Supabase Storage
     mostrarToast("Enviando arquivo...", "info");
-    const ext = arquivo.name.split(".").pop().toLowerCase();
-    const nomeComExt = `${nomeArq}.${ext}`;
-    await Storage.upload(arquivo, nomeArq);
+    const urlPublica = await Storage.upload(arquivo, nomeArq);
 
     // 2. Salva/atualiza registro no banco
     const dados = {
@@ -188,7 +193,7 @@ async function salvarBoletim(mesObs, tipoReceb, arquivo) {
       id_func: usuario.id,
       ano_mes_boletim: mesObs + "-01",
       status_boletim: "R",
-      ficheiro_boletim: nomeComExt,
+      ficheiro_boletim: urlPublica,
       data_recebimento_boletim: new Date().toISOString().split("T")[0],
     };
 
@@ -219,7 +224,7 @@ async function salvarBoletim(mesObs, tipoReceb, arquivo) {
     document.getElementById("roteiroEstacao").value = "";
     estacaoSelecionada = null;
 
-    mostrarToast(`Boletim registrado e imagem enviada! Arquivo: ${nomeComExt}`);
+    mostrarToast(`Boletim registrado e imagem enviada! Arquivo: ${nomeArq}`);
     await carregarRecebidos();
     await carregarKPIs();
   } catch (err) {
@@ -233,7 +238,7 @@ function substituirBoletim() {
   const tipoReceb = document.getElementById("tipoReceb").value;
   const arquivo = document.getElementById("fileInput").files[0];
   if (!mesObs) {
-    alert("Mês de observação inválido.");
+    mostrarToast("Mês de observação inválido.", "erro");
     return;
   }
   if (!arquivo) {
@@ -273,7 +278,7 @@ async function carregarRecebidos() {
       .join("");
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="6" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="6" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -319,7 +324,7 @@ async function carregarDigitacao() {
       .join("");
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="8" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="8" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 
@@ -389,7 +394,8 @@ async function filtrarArquivamento() {
   try {
     let bols = await Boletins.listar("status_boletim=in.(AN,E)");
     const rotId = document.getElementById("filtroRotArq").value;
-    const mes = document.getElementById("filtroMesArq").value;
+    let mes = document.getElementById("filtroMesArq").value;
+    if (mes) mes = parseMesAno(mes);
     const tipoEst = document.getElementById("filtroTipoEstArq").value;
 
     if (rotId) bols = bols.filter((b) => b.estacao?.id_roteiro == rotId);
@@ -418,7 +424,7 @@ async function filtrarArquivamento() {
       .join("");
   } catch (e) {
     tbody.innerHTML =
-      '<tr><td colspan="8" class="srbh-vazio">Erro ao carregar.</td></tr>';
+      '<tr><td colspan="8" class="srbh-vazio">Erro ao carregar os dados.</td></tr>';
   }
 }
 

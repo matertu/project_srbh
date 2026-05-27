@@ -2,7 +2,7 @@
 // MODO DE TESTE — troque o valor para simular um cargo sem banco
 // Valores válidos: 'digitalizador' | 'tecnico' | 'supervisor'
 // Em produção, deixe como null
-const DEV_CARGO = 'supervisor';
+const DEV_CARGO = null;
 // ══════════════════════════════════════════════════════════════
 
 // ── Rota padrão por cargo (para redirect após login / acesso negado) ──

@@ -5,100 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Visualizador de Boletim</title>
     <link rel="icon" href="assets/img/logo-sgb-cabecalho.png" />
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
     <style>
       * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, Helvetica, sans-serif; }
       body { min-height: 100vh; background: #eef2f7; display: flex; flex-direction: column; }
 
       header {
-        width: 100%;
-        background: #0b3d5c;
+        width: 100%; background: #0b3d5c;
         border-bottom: 4px solid #1b6ca8;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px 0;
+        display: flex; justify-content: center; align-items: center; padding: 20px 0;
       }
       .logo-topo { width: 17.5%; object-fit: contain; }
 
       main { flex: 1; width: 100%; max-width: 1400px; margin: auto; padding: 40px 30px 60px; }
 
-      /* USER BAR */
       .user-bar {
-        display: flex;
-        justify-content: flex-end;
-        align-items: center;
-        gap: 14px;
-        margin-bottom: 18px;
+        display: flex; justify-content: flex-end; align-items: center;
+        gap: 14px; margin-bottom: 18px;
       }
       .user-info { font-size: 14px; color: #0b3d5c; font-weight: bold; }
       .user-info em { font-style: normal; color: #1b6ca8; }
       .btn-logout {
-        padding: 7px 18px;
-        border: 2px solid #a32d2d;
-        border-radius: 8px;
-        background: transparent;
-        color: #a32d2d;
-        font-size: 13px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
+        padding: 7px 18px; border: 2px solid #a32d2d; border-radius: 8px;
+        background: transparent; color: #a32d2d; font-size: 13px; font-weight: bold;
+        cursor: pointer; transition: 0.2s;
       }
       .btn-logout:hover { background: #fef2f2; }
 
       .page-header {
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        margin-bottom: 30px;
-        flex-wrap: wrap;
+        display: flex; align-items: center; gap: 20px;
+        margin-bottom: 30px; flex-wrap: wrap;
       }
       .btn-voltar {
-        padding: 12px 24px;
-        border: 2px solid #0b3d5c;
-        border-radius: 10px;
-        background: transparent;
-        color: #0b3d5c;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-        text-decoration: none;
-        display: inline-block;
+        padding: 12px 24px; border: 2px solid #0b3d5c; border-radius: 10px;
+        background: transparent; color: #0b3d5c; font-size: 15px; font-weight: bold;
+        cursor: pointer; transition: 0.2s; text-decoration: none; display: inline-block;
       }
       .btn-voltar:hover { background: #0b3d5c; color: white; }
-
       h1.page-title { font-size: 30px; color: #0b3d5c; flex: 1; }
 
       .badge-status {
-        padding: 8px 18px;
-        border-radius: 999px;
-        font-size: 14px;
-        font-weight: bold;
+        padding: 8px 18px; border-radius: 999px; font-size: 14px; font-weight: bold;
       }
-      .status-r        { background: #dbeafe; color: #1e40af; }
+      .status-d        { background: #dbeafe; color: #1e40af; }
+      .status-an       { background: #fef3c7; color: #92400e; }
       .status-enviado  { background: #dff3e3; color: #207a36; }
-      .status-pendente { background: #fff3cd; color: #856404; }
-      .status-arquivado{ background: #e2e8f0; color: #475569; }
 
       .info-banner {
-        border-radius: 10px;
-        padding: 20px 24px;
-        font-size: 16px;
-        margin-bottom: 24px;
-        display: none;
-        border-left: 6px solid #1b6ca8;
-        background: #eef2f7;
-        color: #0b3d5c;
+        border-radius: 10px; padding: 16px 22px; font-size: 15px;
+        margin-bottom: 22px; display: none;
+        border-left: 6px solid #1b6ca8; background: #eef2f7; color: #0b3d5c;
       }
       .info-banner.erro { border-color: #a32d2d; background: #fef2f2; color: #a32d2d; }
       .info-banner.ok   { border-color: #207a36; background: #dff3e3; color: #207a36; }
 
       .form-card {
-        background: white;
-        border-radius: 18px;
-        padding: 35px 30px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.08);
-        margin-bottom: 30px;
+        background: white; border-radius: 18px;
+        padding: 35px 30px; box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+        margin-bottom: 28px;
       }
 
       .meta-row { display: flex; gap: 20px; margin-bottom: 30px; flex-wrap: wrap; }
@@ -108,118 +72,144 @@
         text-transform: uppercase; letter-spacing: 0.5px;
       }
       .campo-readonly {
-        padding: 10px 14px;
-        border: 2px solid #e2e8f0;
-        border-radius: 8px;
-        font-size: 15px;
-        color: #333;
-        background: #f8fafc;
-        min-height: 42px;
+        padding: 10px 14px; border: 2px solid #e2e8f0; border-radius: 8px;
+        font-size: 15px; color: #333; background: #f8fafc; min-height: 42px;
       }
 
-      /* PAINEL DE AÇÕES DO SUPERVISOR */
-      .painel-supervisor {
-        background: #f0f7ff;
-        border: 2px solid #1b6ca8;
-        border-radius: 14px;
-        padding: 24px 28px;
-        margin-bottom: 24px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
-        flex-wrap: wrap;
-      }
-      .painel-supervisor h3 {
-        font-size: 15px;
-        color: #0b3d5c;
-        font-weight: bold;
-        text-transform: uppercase;
-        letter-spacing: 0.5px;
-        flex: 1;
-      }
-      .btn-enviar-ana {
-        padding: 13px 30px;
-        border: none;
-        border-radius: 10px;
-        background: #207a36;
-        color: white;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-      }
-      .btn-enviar-ana:hover  { background: #185e2a; }
-      .btn-enviar-ana:disabled { opacity: 0.6; cursor: default; }
-
-      .btn-arquivar {
-        padding: 13px 30px;
-        border: 2px solid #475569;
-        border-radius: 10px;
-        background: transparent;
-        color: #475569;
-        font-size: 15px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: 0.2s;
-      }
-      .btn-arquivar:hover { background: #e2e8f0; }
-
-      /* IMAGEM */
-      .imagem-section { margin-top: 10px; }
-      .imagem-section h2 {
+      .section-titulo {
         font-size: 15px; font-weight: bold; color: #0b3d5c;
         text-transform: uppercase; letter-spacing: 0.5px;
-        margin-bottom: 14px;
-        border-bottom: 2px solid #e2e8f0;
-        padding-bottom: 10px;
+        margin-bottom: 14px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;
       }
       .imagem-container {
-        border: 2px solid #e2e8f0;
-        border-radius: 14px;
-        background: #f8fafc;
-        min-height: 300px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        padding: 16px;
+        border: 2px solid #e2e8f0; border-radius: 14px; background: #f8fafc;
+        min-height: 280px; display: flex; align-items: center;
+        justify-content: center; overflow: hidden; padding: 16px;
       }
       .imagem-container img {
-        max-width: 100%;
-        max-height: 700px;
-        object-fit: contain;
-        border-radius: 8px;
-        box-shadow: 0 4px 14px rgba(0,0,0,0.1);
+        max-width: 100%; max-height: 700px; object-fit: contain;
+        border-radius: 8px; box-shadow: 0 4px 14px rgba(0,0,0,0.1);
       }
       .imagem-ausente {
-        display: flex; flex-direction: column;
-        align-items: center; gap: 12px;
-        color: #94a3b8; font-size: 16px; padding: 60px 20px;
+        display: flex; flex-direction: column; align-items: center;
+        gap: 12px; color: #94a3b8; font-size: 16px; padding: 60px 20px;
       }
       .imagem-ausente span { font-size: 52px; }
-      .btn-download {
-        display: inline-flex; align-items: center; gap: 8px;
-        margin-top: 16px; padding: 12px 26px;
-        background: #0b3d5c; color: white;
-        border: none; border-radius: 10px;
-        font-size: 15px; font-weight: bold;
-        cursor: pointer; text-decoration: none; transition: 0.2s;
+
+      /* ── PAINEL TÉCNICO ─────────────────────────────────────── */
+      .painel-tecnico {
+        background: #fffbeb; border: 2px solid #f59e0b;
+        border-radius: 14px; padding: 28px; margin-top: 28px;
       }
-      .btn-download:hover { background: #145b87; }
+      .painel-tecnico .section-titulo { border-color: #fde68a; color: #92400e; }
+
+      /* Anotações salvas localmente */
+      .anotacoes-lista { margin-bottom: 20px; }
+      .anotacao-item {
+        background: #f8fafc; border-left: 4px solid #1b6ca8;
+        border-radius: 0 10px 10px 0; padding: 14px 18px; margin-bottom: 12px;
+        position: relative;
+      }
+      .anotacao-meta { font-size: 12px; color: #94a3b8; margin-bottom: 6px; }
+      .anotacao-texto { font-size: 15px; color: #1e293b; line-height: 1.6; white-space: pre-wrap; }
+      .btn-del-anotacao {
+        position: absolute; top: 10px; right: 12px;
+        border: none; background: transparent; color: #cbd5e1;
+        font-size: 16px; cursor: pointer; line-height: 1;
+        transition: color 0.2s;
+      }
+      .btn-del-anotacao:hover { color: #a32d2d; }
+      .sem-anotacoes {
+        text-align: center; padding: 24px; color: #94a3b8; font-size: 15px;
+        background: #f8fafc; border-radius: 10px; margin-bottom: 20px;
+      }
+
+      .nova-anotacao-label {
+        font-size: 14px; font-weight: bold; color: #92400e;
+        margin-bottom: 10px; display: block;
+      }
+      .nova-anotacao-textarea {
+        width: 100%; min-height: 140px; padding: 14px 16px;
+        border: 2px solid #fde68a; border-radius: 10px;
+        font-size: 15px; line-height: 1.6; resize: vertical;
+        outline: none; transition: 0.2s; color: #1e293b; font-family: inherit;
+        background: white;
+      }
+      .nova-anotacao-textarea:focus { border-color: #f59e0b; }
+      .nova-anotacao-textarea::placeholder { color: #94a3b8; }
+
+      .tecnico-actions {
+        display: flex; gap: 14px; margin-top: 16px; flex-wrap: wrap;
+        align-items: center;
+      }
+      .btn-salvar-anotacao {
+        padding: 13px 28px; border: none; border-radius: 10px;
+        background: #f59e0b; color: white; font-size: 15px; font-weight: bold;
+        cursor: pointer; transition: 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      }
+      .btn-salvar-anotacao:hover    { background: #d97706; }
+      .btn-salvar-anotacao:disabled { opacity: 0.6; cursor: default; }
+
+      .btn-exportar-zip {
+        padding: 13px 28px; border: none; border-radius: 10px;
+        background: #0b3d5c; color: white; font-size: 15px; font-weight: bold;
+        cursor: pointer; transition: 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        display: flex; align-items: center; gap: 8px;
+      }
+      .btn-exportar-zip:hover    { background: #145b87; }
+      .btn-exportar-zip:disabled { opacity: 0.6; cursor: default; }
+
+      .info-local {
+        font-size: 12px; color: #92400e; opacity: 0.75; margin-left: auto;
+      }
+
+      /* ── PAINEL SUPERVISOR ──────────────────────────────────── */
+      .painel-supervisor {
+        background: #f0f7ff; border: 2px solid #1b6ca8;
+        border-radius: 14px; padding: 26px 30px; margin-bottom: 26px;
+      }
+      .painel-supervisor .section-titulo { border-color: #bfdbfe; }
+
+      .supervisor-row {
+        display: flex; align-items: center; gap: 20px; flex-wrap: wrap;
+      }
+      .supervisor-row label {
+        font-size: 14px; font-weight: bold; color: #0b3d5c;
+        text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;
+      }
+      .status-select {
+        flex: 1; min-width: 200px; max-width: 320px;
+        padding: 12px 16px; border: 2px solid #1b6ca8; border-radius: 10px;
+        font-size: 15px; font-weight: bold; color: #0b3d5c;
+        background: white; cursor: pointer; outline: none; appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%230b3d5c' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+        background-repeat: no-repeat; background-position: right 14px center;
+        transition: border-color 0.2s;
+      }
+      .status-select:focus { border-color: #0b3d5c; }
+      .btn-salvar-status {
+        padding: 13px 32px; border: none; border-radius: 10px;
+        background: #0b3d5c; color: white; font-size: 15px; font-weight: bold;
+        cursor: pointer; transition: 0.2s; box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+      }
+      .btn-salvar-status:hover    { background: #145b87; }
+      .btn-salvar-status:disabled { opacity: 0.6; cursor: default; }
+      .status-hint {
+        font-size: 13px; color: #64748b; margin-top: 12px;
+        padding: 10px 14px; background: white; border-radius: 8px;
+        border-left: 4px solid #1b6ca8;
+      }
 
       /* SKELETON */
       .skeleton {
         background: linear-gradient(90deg, #e8edf2 25%, #f5f8fb 50%, #e8edf2 75%);
-        background-size: 200% 100%;
-        animation: shimmer 1.4s infinite;
+        background-size: 200% 100%; animation: shimmer 1.4s infinite;
         border-radius: 8px; height: 16px; margin-bottom: 8px;
       }
       @keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
 
       footer {
-        width: 100%; background: #0b3d5c;
-        border-top: 4px solid #1b6ca8;
+        width: 100%; background: #0b3d5c; border-top: 4px solid #1b6ca8;
         display: flex; justify-content: center; align-items: center; padding: 16px;
       }
       .logo-footer { width: 15%; object-fit: contain; }
@@ -227,6 +217,9 @@
       @media (max-width: 700px) {
         h1.page-title { font-size: 22px; }
         .logo-topo, .logo-footer { width: 45%; }
+        .supervisor-row { flex-direction: column; align-items: flex-start; }
+        .status-select { max-width: 100%; width: 100%; }
+        .info-local { margin-left: 0; }
       }
     </style>
   </head>
@@ -246,18 +239,26 @@
 
       <div class="info-banner" id="infoBanner"></div>
 
-      <!-- PAINEL SUPERVISOR (aparece só para supervisor) -->
+      <!-- ══ PAINEL SUPERVISOR ══════════════════════════════════ -->
       <div class="painel-supervisor" id="painelSupervisor" style="display:none;">
-        <h3>🔒 Ações do Supervisor</h3>
-        <button class="btn-enviar-ana" id="btnEnviarAna" onclick="marcarComoEnviado()">
-          ✅ Marcar como Enviado à ANA
-        </button>
-        <button class="btn-arquivar" onclick="arquivarBoletim()">
-          📂 Arquivar Boletim
-        </button>
+        <p class="section-titulo">🔒 Ações do Supervisor</p>
+        <div class="supervisor-row">
+          <label for="statusSelect">Alterar status:</label>
+          <select class="status-select" id="statusSelect">
+            <option value="D">DIGITALIZADO</option>
+            <option value="AN">ANOTADO</option>
+            <option value="E">ENVIADO À ANA</option>
+          </select>
+          <button class="btn-salvar-status" id="btnSalvarStatus" onclick="salvarNovoStatus()">
+            💾 SALVAR STATUS
+          </button>
+        </div>
+        <p class="status-hint" id="statusHint"></p>
       </div>
 
+      <!-- ══ CARD PRINCIPAL ═════════════════════════════════════ -->
       <div class="form-card" id="cardMetadados" style="display:none;">
+
         <div class="meta-row">
           <div class="meta-group">
             <label>ID do Boletim</label>
@@ -285,10 +286,36 @@
           </div>
         </div>
 
-        <div class="imagem-section">
-          <h2>📄 Imagem do Boletim</h2>
+        <div>
+          <p class="section-titulo">📄 Imagem do Boletim</p>
           <div class="imagem-container" id="imagemContainer"></div>
         </div>
+
+        <!-- ══ PAINEL TÉCNICO ════════════════════════════════════ -->
+        <div class="painel-tecnico" id="painelTecnico" style="display:none;">
+          <p class="section-titulo">✏️ Anotações Técnicas</p>
+
+          <!-- Lista de anotações salvas localmente -->
+          <div class="anotacoes-lista" id="listaAnotacoes"></div>
+
+          <label class="nova-anotacao-label">Nova anotação (opcional):</label>
+          <textarea
+            class="nova-anotacao-textarea"
+            id="textoAnotacao"
+            placeholder="Escreva suas observações técnicas sobre este boletim... (pode ser deixado em branco ao exportar)"
+          ></textarea>
+
+          <div class="tecnico-actions">
+            <button class="btn-salvar-anotacao" id="btnSalvar" onclick="salvarAnotacaoLocal()">
+              💾 SALVAR ANOTAÇÃO
+            </button>
+            <button class="btn-exportar-zip" id="btnExportar" onclick="exportarZip()">
+              📦 EXPORTAR .ZIP
+            </button>
+            <span class="info-local">💡 Anotações salvas localmente neste computador</span>
+          </div>
+        </div>
+
       </div>
 
       <!-- SKELETON -->
@@ -311,36 +338,245 @@
     <script src="js/main.js"></script>
     <script src="js/boletimAPI.js"></script>
     <script>
-      // ── Verifica: só supervisor ───────────────────────────────
-      verificarSessao(['tecnico', 'supervisor']);
-
-      // Monta user bar
-      const bar = document.getElementById('userBar');
-      bar.innerHTML = `
-        <span class="user-info">👤 ${getNomeUsuario()} <em>(${getCargo()})</em></span>
-        <button class="btn-logout" onclick="logout()">Sair</button>
-      `;
-
-      // Painel de ações só para supervisor
-      const _cargo = getCargo();
-      if (_cargo !== 'supervisor') {
-        const painel = document.getElementById('painelSupervisor');
-        if (painel) painel.style.display = 'none';
+      // ══════════════════════════════════════════════════════════
+      // SESSÃO
+      // ══════════════════════════════════════════════════════════
+      const CARGO = verificarSessao(['tecnico', 'supervisor']);
+      if (CARGO) {
+        document.getElementById('userBar').innerHTML = `
+          <span class="user-info">👤 ${getNomeUsuario()} <em>(${CARGO})</em></span>
+          <button class="btn-logout" onclick="logout()">Sair</button>
+        `;
       }
 
       const STATUS_MAP = {
-        R: { label: 'RECEBIDO',  classe: 'status-r'         },
-        E: { label: 'ENVIADO',   classe: 'status-enviado'   },
-        P: { label: 'PENDENTE',  classe: 'status-pendente'  },
-        A: { label: 'ARQUIVADO', classe: 'status-arquivado' },
+        D:  { label: 'DIGITALIZADO', classe: 'status-d'       },
+        AN: { label: 'ANOTADO',      classe: 'status-an'      },
+        E:  { label: 'ENVIADO',      classe: 'status-enviado' },
       };
 
-      let BOLETIM_ID_ATUAL = null;
+      let BOLETIM_ID_ATUAL   = null;
+      let BOLETIM_DATA_ATUAL = null;
 
-      function formatarData(dataStr) {
-        if (!dataStr) return '—';
-        const [ano, mes] = dataStr.split('-');
-        return `${mes}/${ano}`;
+      // ══════════════════════════════════════════════════════════
+      // STATUS — API Supabase (apenas para supervisor)
+      // ══════════════════════════════════════════════════════════
+      const _SUPA_URL = "https://ytrowyxkuemlqmiyfvll.supabase.co/rest/v1";
+      const _SUPA_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inl0cm93eXhrdWVtbHFtaXlmdmxsIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3ODU5MjA4NCwiZXhwIjoyMDk0MTY4MDg0fQ.VneeIzziKTakMFBKI3_YPg9iDwjcjWuayJw8DHllOcI";
+      const _HDRS = {
+        "Content-Type": "application/json",
+        "apikey": _SUPA_KEY,
+        "Authorization": `Bearer ${_SUPA_KEY}`,
+        "Prefer": "return=representation",
+      };
+
+      async function mudarStatusBoletim(id, novoStatus) {
+        const r = await fetch(`${_SUPA_URL}/boletim?id_boletim=eq.${id}`, {
+          method: "PATCH", headers: _HDRS,
+          body: JSON.stringify({ status_boletim: novoStatus }),
+        });
+        if (!r.ok) { const e = await r.json(); throw new Error(e.message ?? JSON.stringify(e)); }
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // ANOTAÇÕES LOCAIS — localStorage
+      // Chave: "anotacoes_boletim_<id>"
+      // Valor: JSON array de { id, texto, data }
+      // ══════════════════════════════════════════════════════════
+      function chaveStorage(idBoletim) {
+        return `anotacoes_boletim_${idBoletim}`;
+      }
+
+      function carregarAnotacoesLocais(idBoletim) {
+        try {
+          const raw = localStorage.getItem(chaveStorage(idBoletim));
+          return raw ? JSON.parse(raw) : [];
+        } catch (_) { return []; }
+      }
+
+      function persistirAnotacoesLocais(idBoletim, lista) {
+        localStorage.setItem(chaveStorage(idBoletim), JSON.stringify(lista));
+      }
+
+      function renderizarAnotacoes(lista) {
+        const div = document.getElementById('listaAnotacoes');
+        if (!lista || lista.length === 0) {
+          div.innerHTML = `<div class="sem-anotacoes">Nenhuma anotação salva neste computador ainda.</div>`;
+          return;
+        }
+        div.innerHTML = lista.map((a, idx) => `
+          <div class="anotacao-item">
+            <div class="anotacao-meta">
+              ${getNomeUsuario()} · ${a.data}
+            </div>
+            <div class="anotacao-texto">${a.texto || '<em style="color:#94a3b8">Sem texto</em>'}</div>
+            <button class="btn-del-anotacao" title="Remover anotação"
+              onclick="removerAnotacaoLocal(${idx})">✕</button>
+          </div>`
+        ).join('');
+      }
+
+      function salvarAnotacaoLocal() {
+        const texto = document.getElementById('textoAnotacao').value.trim();
+        if (!texto) {
+          mostrarBanner('⚠ Escreva algo antes de salvar.', 'erro');
+          return;
+        }
+        const lista = carregarAnotacoesLocais(BOLETIM_ID_ATUAL);
+        lista.push({
+          id:    Date.now(),
+          texto: texto,
+          data:  new Date().toLocaleString('pt-BR'),
+        });
+        persistirAnotacoesLocais(BOLETIM_ID_ATUAL, lista);
+        document.getElementById('textoAnotacao').value = '';
+        renderizarAnotacoes(lista);
+        mostrarBanner('✔ Anotação salva neste computador.', 'ok');
+      }
+
+      function removerAnotacaoLocal(idx) {
+        const lista = carregarAnotacoesLocais(BOLETIM_ID_ATUAL);
+        lista.splice(idx, 1);
+        persistirAnotacoesLocais(BOLETIM_ID_ATUAL, lista);
+        renderizarAnotacoes(lista);
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // EXPORTAR ZIP
+      // ══════════════════════════════════════════════════════════
+      function nomeArquivo(anoMes) {
+        // "2026-05-01"  →  "05-2026"
+        if (!anoMes) return 'boletim';
+        const [a, m] = anoMes.split('-');
+        return `${m}-${a}`;
+      }
+
+      async function exportarZip() {
+        const btn = document.getElementById('btnExportar');
+        btn.textContent = '⏳ Gerando...';
+        btn.disabled    = true;
+
+        try {
+          const boletim    = BOLETIM_DATA_ATUAL;
+          const anotacoes  = carregarAnotacoesLocais(BOLETIM_ID_ATUAL);
+          const textoAtual = document.getElementById('textoAnotacao').value.trim();
+          const base       = nomeArquivo(boletim.ano_mes_boletim); // ex: "05-2026"
+          const zip        = new JSZip();
+
+          // ── 1. CSV com metadados do banco ─────────────────────
+          const linhas = [
+            ['Campo', 'Valor'],
+            ['ID Boletim',          boletim.id_boletim],
+            ['Referência',          formatarData(boletim.ano_mes_boletim)],
+            ['Data de Recebimento', formatarData(boletim.data_recebimento_boletim)],
+            ['ID da Estação',       boletim.id_estacao],
+            ['ID do Funcionário',   boletim.id_func ?? ''],
+            ['Ficheiro',            boletim.ficheiro_boletim ?? ''],
+            ['Status',              boletim.status_boletim],
+          ];
+          const csvStr = linhas.map(r => r.join(';')).join('\r\n');
+          // BOM para o Excel reconhecer UTF-8
+          zip.file(`${base}/${base}_dados.csv`, '\uFEFF' + csvStr);
+
+          // ── 2. Imagem PNG salva no servidor ───────────────────
+          if (boletim.ficheiro_boletim) {
+            const imgUrl = `assets/boletins/${boletim.ficheiro_boletim}`;
+            try {
+              const resp = await fetch(imgUrl);
+              if (resp.ok) {
+                const blob = await resp.blob();
+                const ext  = boletim.ficheiro_boletim.split('.').pop() || 'png';
+                zip.file(`${base}/${base}_boletim.${ext}`, blob);
+              } else {
+                zip.file(`${base}/${base}_aviso_imagem.txt`,
+                  `Imagem "${boletim.ficheiro_boletim}" não encontrada no servidor (HTTP ${resp.status}).`);
+              }
+            } catch (_) {
+              zip.file(`${base}/${base}_aviso_imagem.txt`,
+                `Não foi possível acessar a imagem "${boletim.ficheiro_boletim}".`);
+            }
+          }
+
+          // ── 3. TXT com o que o técnico digitou ───────────────
+          const linhasDivisoria = '─'.repeat(50);
+          let txt = [
+            `RELATÓRIO TÉCNICO — BOLETIM #${boletim.id_boletim}`,
+            `Referência  : ${formatarData(boletim.ano_mes_boletim)}`,
+            `Estação     : ${boletim.id_estacao}`,
+            `Técnico     : ${getNomeUsuario()} (ID ${getIdUsuario()})`,
+            `Gerado em   : ${new Date().toLocaleString('pt-BR')}`,
+            '',
+            linhasDivisoria,
+            'OBSERVAÇÕES DESTA EXPORTAÇÃO:',
+            linhasDivisoria,
+            textoAtual || '(nenhuma observação digitada nesta exportação)',
+            '',
+          ].join('\r\n');
+
+          // Inclui anotações salvas localmente, se houver
+          if (anotacoes.length > 0) {
+            txt += [
+              linhasDivisoria,
+              'ANOTAÇÕES ANTERIORES SALVAS NESTE COMPUTADOR:',
+              linhasDivisoria,
+              ...anotacoes.map((a, i) =>
+                `[${i + 1}] ${a.data}\r\n${a.texto || '(sem texto)'}\r\n`
+              ),
+            ].join('\r\n');
+          }
+
+          zip.file(`${base}/${base}_relatorio_tecnico.txt`, txt);
+
+          // ── Dispara download ──────────────────────────────────
+          const blob = await zip.generateAsync({ type: 'blob' });
+          const url  = URL.createObjectURL(blob);
+          const a    = document.createElement('a');
+          a.href     = url;
+          a.download = `${base}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+
+          mostrarBanner('✔ ZIP salvo no seu computador!', 'ok');
+
+        } catch (e) {
+          mostrarBanner('⚠ Erro ao gerar ZIP: ' + e.message, 'erro');
+        } finally {
+          btn.innerHTML = '📦 EXPORTAR .ZIP';
+          btn.disabled  = false;
+        }
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // SUPERVISOR — salvar status no banco
+      // ══════════════════════════════════════════════════════════
+      async function salvarNovoStatus() {
+        const novoStatus = document.getElementById('statusSelect').value;
+        const btn = document.getElementById('btnSalvarStatus');
+        btn.textContent = 'Salvando...';
+        btn.disabled    = true;
+        try {
+          await mudarStatusBoletim(BOLETIM_ID_ATUAL, novoStatus);
+          atualizarBadge(novoStatus);
+          atualizarStatusHint(novoStatus);
+          mostrarBanner(
+            `✔ Status atualizado para "${STATUS_MAP[novoStatus]?.label ?? novoStatus}".`, 'ok'
+          );
+        } catch (e) {
+          mostrarBanner('⚠ Erro ao salvar status: ' + e.message, 'erro');
+        } finally {
+          btn.textContent = '💾 SALVAR STATUS';
+          btn.disabled    = false;
+        }
+      }
+
+      // ══════════════════════════════════════════════════════════
+      // UTILITÁRIOS DE UI
+      // ══════════════════════════════════════════════════════════
+      function formatarData(d) {
+        if (!d) return '—';
+        const [a, m] = d.split('-');
+        return `${m}/${a}`;
       }
 
       function mostrarBanner(msg, tipo = 'ok') {
@@ -348,12 +584,23 @@
         b.textContent   = msg;
         b.className     = `info-banner ${tipo}`;
         b.style.display = 'block';
-        setTimeout(() => b.style.display = 'none', 4000);
+        setTimeout(() => b.style.display = 'none', 5000);
       }
 
-      function mostrarErro(msg) {
-        mostrarBanner('⚠ ' + msg, 'erro');
-        document.getElementById('pageTitle').textContent = 'Erro ao carregar boletim';
+      function atualizarBadge(status) {
+        const s = STATUS_MAP[status] ?? { label: status, classe: 'status-d' };
+        const badge = document.getElementById('badgeStatus');
+        badge.textContent = s.label;
+        badge.className   = `badge-status ${s.classe}`;
+      }
+
+      function atualizarStatusHint(status) {
+        const msgs = {
+          D:  'O boletim foi recebido e digitalizado, aguardando análise técnica.',
+          AN: 'O boletim possui anotações técnicas registradas.',
+          E:  'O boletim foi enviado oficialmente à ANA.',
+        };
+        document.getElementById('statusHint').textContent = msgs[status] ?? '';
       }
 
       function renderizarImagem(boletim) {
@@ -363,100 +610,81 @@
           container.innerHTML = `<div class="imagem-ausente"><span>🖼️</span><p>Nenhuma imagem registrada.</p></div>`;
           return;
         }
-        const urlImagem = `assets/boletins/${ficheiro}`;
+        const url = `assets/boletins/${ficheiro}`;
         const img = document.createElement('img');
-        img.alt = ficheiro;
-        img.src = urlImagem;
+        img.alt   = ficheiro;
+        img.src   = url;
         img.onerror = () => {
-          container.innerHTML = `<div class="imagem-ausente"><span>📂</span><p>Imagem não encontrada no servidor.</p><p style="font-size:13px;color:#64748b;margin-top:4px;">${ficheiro}</p></div>`;
+          container.innerHTML = `<div class="imagem-ausente"><span>📂</span>
+            <p>Imagem não encontrada no servidor.</p>
+            <p style="font-size:13px;color:#64748b;margin-top:4px;">${ficheiro}</p></div>`;
         };
         container.innerHTML = '';
         container.appendChild(img);
-
-        const dl = document.createElement('a');
-        dl.href = urlImagem; dl.download = ficheiro;
-        dl.className = 'btn-download'; dl.textContent = '⬇ Baixar imagem';
-        dl.style.marginTop = '16px'; dl.style.display = 'block';
-        container.parentElement.appendChild(dl);
       }
 
       function preencherMetadados(boletim) {
-        const s = STATUS_MAP[boletim.status_boletim] ?? { label: boletim.status_boletim, classe: 'status-r' };
         document.getElementById('pageTitle').textContent =
           `Boletim #${boletim.id_boletim} — ${formatarData(boletim.ano_mes_boletim)}`;
-        const badge = document.getElementById('badgeStatus');
-        badge.textContent = s.label;
-        badge.className   = `badge-status ${s.classe}`;
+        atualizarBadge(boletim.status_boletim);
         document.getElementById('vIdBoletim').textContent = boletim.id_boletim;
         document.getElementById('vRefData').textContent   = formatarData(boletim.ano_mes_boletim);
         document.getElementById('vDataReceb').textContent = formatarData(boletim.data_recebimento_boletim);
         document.getElementById('vEstacao').textContent   = boletim.id_estacao;
         document.getElementById('vFunc').textContent      = boletim.id_func ?? '—';
         document.getElementById('vFicheiro').textContent  = boletim.ficheiro_boletim ?? '—';
-
-        // Desabilita botão de enviar se já enviado
-        const btnEnviar = document.getElementById('btnEnviarAna');
-        if (boletim.status_boletim === 'E') {
-          btnEnviar.textContent = '✅ Já enviado à ANA';
-          btnEnviar.disabled    = true;
-        }
       }
 
-      async function marcarComoEnviado() {
-        if (!BOLETIM_ID_ATUAL) return;
-        const btn = document.getElementById('btnEnviarAna');
-        btn.textContent = 'Salvando...';
-        btn.disabled    = true;
-        try {
-          await mudarStatusBoletim(BOLETIM_ID_ATUAL, 'E');
-          document.getElementById('badgeStatus').textContent  = 'ENVIADO';
-          document.getElementById('badgeStatus').className    = 'badge-status status-enviado';
-          btn.textContent = '✅ Já enviado à ANA';
-          mostrarBanner('✔ Status atualizado para ENVIADO.', 'ok');
-        } catch (e) {
-          btn.textContent = '✅ Marcar como Enviado à ANA';
-          btn.disabled    = false;
-          mostrarBanner('⚠ Erro ao atualizar status: ' + e.message, 'erro');
-        }
-      }
-
-      async function arquivarBoletim() {
-        if (!BOLETIM_ID_ATUAL) return;
-        if (!confirm('Deseja arquivar este boletim?')) return;
-        try {
-          await mudarStatusBoletim(BOLETIM_ID_ATUAL, 'A');
-          document.getElementById('badgeStatus').textContent = 'ARQUIVADO';
-          document.getElementById('badgeStatus').className   = 'badge-status status-arquivado';
-          mostrarBanner('✔ Boletim arquivado com sucesso.', 'ok');
-        } catch (e) {
-          mostrarBanner('⚠ Erro ao arquivar: ' + e.message, 'erro');
-        }
-      }
-
+      // ══════════════════════════════════════════════════════════
+      // INIT
+      // ══════════════════════════════════════════════════════════
       window.onload = async function () {
         const params = new URLSearchParams(window.location.search);
         const id     = parseInt(params.get('id'));
         if (!id) {
-          mostrarErro('Nenhum ID de boletim informado na URL.');
+          document.getElementById('pageTitle').textContent = 'ID não informado';
           document.getElementById('cardSkeleton').style.display = 'none';
           return;
         }
         BOLETIM_ID_ATUAL = id;
+
         try {
           const boletim = await buscarBoletimPorId(id);
+
           if (!boletim) {
-            mostrarErro(`Boletim #${id} não encontrado.`);
+            document.getElementById('pageTitle').textContent = 'Boletim não encontrado';
             document.getElementById('cardSkeleton').style.display = 'none';
             return;
           }
+
+          BOLETIM_DATA_ATUAL = boletim;
           preencherMetadados(boletim);
           renderizarImagem(boletim);
-          document.getElementById('painelSupervisor').style.display = 'flex';
-          document.getElementById('cardSkeleton').style.display     = 'none';
-          document.getElementById('cardMetadados').style.display    = 'block';
+
+          if (CARGO === 'supervisor') {
+            const painel = document.getElementById('painelSupervisor');
+            painel.style.display = 'block';
+            const sel = document.getElementById('statusSelect');
+            if ([...sel.options].some(o => o.value === boletim.status_boletim)) {
+              sel.value = boletim.status_boletim;
+            }
+            atualizarStatusHint(boletim.status_boletim);
+          }
+
+          if (CARGO === 'tecnico') {
+            document.getElementById('painelTecnico').style.display = 'block';
+            // Carrega anotações do localStorage deste computador
+            const anotacoes = carregarAnotacoesLocais(id);
+            renderizarAnotacoes(anotacoes);
+          }
+
+          document.getElementById('cardSkeleton').style.display  = 'none';
+          document.getElementById('cardMetadados').style.display = 'block';
+
         } catch (e) {
           console.error(e);
-          mostrarErro('Falha ao buscar boletim: ' + e.message);
+          document.getElementById('pageTitle').textContent = 'Erro ao carregar';
+          mostrarBanner('⚠ ' + e.message, 'erro');
           document.getElementById('cardSkeleton').style.display = 'none';
         }
       };
